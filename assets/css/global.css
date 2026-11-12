@@ -1,0 +1,211 @@
+/* ==========================================================================
+   GLOBAL STYLES & LAYOUT - PORTAL CMI BEM FILKOM UB
+   Acuan Desain: Wireframe Bab 3.7 (UC-02 s/d UC-13)
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+    --navy-primary: #163273;
+    --navy-hover: #0f2456;
+    --blue-accent: #2563eb;
+    --blue-soft-bg: #eff6ff;
+    --blue-soft-border: #bfdbfe;
+
+    --bg-page: #f1f5f9;
+    --bg-surface: #ffffff;
+    --bg-muted: #f8fafc;
+
+    --text-main: #1e293b;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
+
+    --border-color: #e2e8f0;
+    --border-input: #cbd5e1;
+
+    --danger-bg: #fef2f2;
+    --danger-border: #fca5a5;
+    --danger-text: #dc2626;
+
+    --success-bg: #ecfdf5;
+    --success-border: #6ee7b7;
+    --success-text: #047857;
+
+    --warning-bg: #fef3c7;
+    --warning-border: #fde68a;
+    --warning-text: #b45309;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: var(--bg-page);
+    color: var(--text-main);
+    line-height: 1.5;
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* --- NAVBAR --- */
+.navbar {
+    background-color: var(--bg-surface);
+    border-bottom: 1px solid var(--border-color);
+    padding: 0 40px;
+    height: 68px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--navy-primary);
+    text-decoration: none;
+}
+
+.nav-brand::before {
+    content: "C";
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    background-color: var(--navy-primary);
+    color: #ffffff;
+    border-radius: 8px;
+    font-weight: 800;
+    font-size: 16px;
+}
+
+.nav-brand small {
+    display: block;
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--text-muted);
+}
+
+.nav-menu {
+    display: flex;
+    gap: 28px;
+}
+
+.nav-menu a {
+    text-decoration: none;
+    color: var(--text-muted);
+    font-weight: 500;
+    font-size: 14px;
+    padding: 22px 4px;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.nav-menu a:hover {
+    color: var(--navy-primary);
+}
+
+.nav-menu a.active {
+    color: var(--text-main);
+    font-weight: 700;
+    border-bottom-color: var(--navy-primary);
+}
+
+.nav-user {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.user-role {
+    background-color: var(--blue-soft-bg);
+    color: var(--navy-primary);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 20px;
+}
+
+.btn-logout {
+    text-decoration: none;
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 6px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    transition: background 0.2s;
+}
+
+.btn-logout:hover {
+    background-color: var(--bg-muted);
+    color: var(--danger-text);
+}
+
+/* --- CONTAINER & HEADER HALAMAN --- */
+.container {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 28px 24px 60px;
+}
+
+.breadcrumb {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 22px;
+}
+
+.page-header h1,
+.page-header h2,
+.container>h2 {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--navy-primary);
+    letter-spacing: -0.3px;
+}
+
+/* --- GRID UTAMA 2 KOLOM (Kiri Form/Ringkasan, Kanan Sidebar Aksi) --- */
+.main-grid {
+    display: grid;
+    grid-template-columns: 2.1fr 1fr;
+    gap: 24px;
+    align-items: start;
+}
+
+.sidebar-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 900px) {
+    .main-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .navbar {
+        padding: 0 20px;
+    }
+
+    .nav-menu {
+        display: none;
+    }
+}
