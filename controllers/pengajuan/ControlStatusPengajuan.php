@@ -10,10 +10,10 @@ class ControlStatusPengajuan {
     public function ambilDaftarPengajuan($idPengaju) {
 
         // 1. Query seluruh record pengajuan milik pengaju dari entitas Pengajuan
-        daftarPengajuan=Pengajuan::getByPengaju(idPengaju);
+        $daftarPengajuan = Pengajuan::getByPengaju($idPengaju);
 
         // 2. Evaluasi keberadaan data pengajuan
-        if (daftarPengajuan==null||empty(daftarPengajuan)) {
+        if ($daftarPengajuan == null || empty($daftarPengajuan)) {
             // Alur Alternatif: Pengaju belum pernah membuat pengajuan
             HalamanStatusPengajuan::tampilPesanBelumAda();
         } else {
@@ -29,7 +29,7 @@ class ControlStatusPengajuan {
     public function ambilDetailPengajuan($idPengajuan) {
 
         // 1. Ambil rekaman data permohonan spesifik berdasarkan ID dari entitas Pengajuan
-        detailPengajuan=Pengajuan::getById(idPengajuan);
+        $detailPengajuan = Pengajuan::getById($idPengajuan);
 
         // 2. Tampilkan rincian data dan status permohonan ke HalamanDetailPengajuan
         HalamanDetailPengajuan::tampilDetailPengajuan();
