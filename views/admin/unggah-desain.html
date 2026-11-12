@@ -1,0 +1,250 @@
+<!-- 
+  SUBBAB 4.3 UI IMPLEMENTATION CODE
+  ID Layar    : [GYS-IM-003]
+  Sketsa UI   : Bab 3.7 UI-13-01 s/d UI-13-03 (Formulir Pengunggahan Hasil Desain CMI)
+  Use Case    : UC-13 Mengirim hasil desain
+  Penyusun    : Gion Yehezkiel Sihotang (255150401111041)
+-->
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pengunggahan Hasil Desain - CMI BEM FILKOM</title>
+    <link rel="stylesheet" href="../../assets/css/global.css">
+    <link rel="stylesheet" href="../../assets/css/components.css">
+    <style>
+        .upload-card {
+            max-width: 900px;
+            margin: 30px auto;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .spec-bar {
+            display: flex;
+            gap: 20px;
+            background: #eff6ff;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #1e40af;
+            margin: 15px 0;
+        }
+
+        .dropzone {
+            border: 2px dashed #94a3b8;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            background: #f8fafc;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .dropzone:hover {
+            border-color: #2563eb;
+            background: #f1f5f9;
+        }
+
+        .dropzone.error {
+            border-color: #ef4444;
+            background: #fef2f2;
+        }
+
+        .ref-card-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin: 15px 0;
+        }
+
+        .ref-item {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #ffffff;
+        }
+
+        .banner-alert {
+            display: none;
+            padding: 14px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .banner-danger {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+        }
+
+        .banner-success {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">CMI BEM FILKOM UB <small>Portal Publikasi & Riset</small></div>
+        <div class="nav-menu">
+            <a href="dashboard-cmi.html">Dashboard</a>
+            <a href="daftar-permohonan.html" class="active">Daftar Permohonan</a>
+        </div>
+        <div class="nav-user">
+            <span class="user-role">CMI (Admin)</span>
+            <a href="../../index.html" class="btn-logout">Keluar</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="breadcrumb">Beranda &gt; Daftar Permohonan &gt; REQ-089 &gt; Unggah Desain</div>
+
+        <div class="upload-card">
+            <!-- UI-13-02: Alert Berkas Gagal/Melebihi Batas -->
+            <div id="alertFileError" class="banner-alert banner-danger">
+                <strong>Format berkas tidak didukung atau ukuran berkas melebihi batas 10MB!</strong><br>
+                Sistem hanya menerima format PNG, JPG, JPEG, atau PDF dengan kapasitas maksimal 10MB.
+            </div>
+
+            <!-- UI-13-03: Alert Berhasil Diunggah & Timer 1 Jam Aktif -->
+            <div id="alertUploadSuccess" class="banner-alert banner-success">
+                <strong>Berkas desain berhasil diunggah dan dikirimkan ke pemohon internal!</strong><br>
+                Status permohonan kini diperbarui menjadi <strong>Menunggu Verifikasi</strong>. Batas toleransi
+                verifikasi 1 jam telah diaktifkan.
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <span style="font-size: 11px; font-weight: 700; color: #64748b; letter-spacing: 1px;">PORTAL TIM
+                        KREATIF CMI &bull; TAHAP: DESAIN_FINAL</span>
+                    <h2 style="color: #1e3a8a; margin-top: 4px;">Formulir Pengunggahan Hasil Desain</h2>
+                </div>
+                <span class="badge badge-process" id="badgeStatusSaatIni">Proses Desain</span>
+            </div>
+
+            <!-- Ringkasan Info Permohonan -->
+            <div
+                style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; background: #f8fafc; padding: 14px; border-radius: 8px; margin-top: 15px;">
+                <div><small style="color: #64748b;">No. Pengajuan:</small><br><strong>INT-001</strong></div>
+                <div><small style="color: #64748b;">Kementerian/Biro:</small><br><strong>Adrat (Tata Kelola)</strong>
+                </div>
+                <div><small style="color: #64748b;">Jenis Publikasi:</small><br><strong>Feeds Instagram</strong></div>
+            </div>
+
+            <!-- Ketentuan Desain Singkat Sesuai SOP -->
+            <div class="spec-bar">
+                <span>📐 Rasio 1:1 (Square)</span>
+                <span>🎨 Warna dominan biru BEM</span>
+                <span>🏛️ Memuat logo resmi FILKOM</span>
+            </div>
+
+            <!-- Form Upload Desain -->
+            <form id="formKirimDesain">
+                <div class="form-group">
+                    <label><strong>Berkas Desain Final *</strong></label>
+                    <div class="dropzone" id="dropzoneArea" onclick="document.getElementById('inputDesain').click()">
+                        <div style="font-size: 36px; color: #3b82f6; margin-bottom: 8px;">☁️</div>
+                        <p style="font-size: 15px; font-weight: 600; color: #1e293b; margin-bottom: 4px;">Tarik &amp;
+                            letakkan berkas desain di sini, atau <span style="color: #2563eb;">Klik untuk
+                                Menelusuri</span></p>
+                        <p style="font-size: 12px; color: #64748b;">Format yang didukung: PNG, JPG, JPEG, PDF (Maksimal
+                            10MB per berkas)</p>
+                        <div id="fileInfoChip"
+                            style="display: none; margin-top: 15px; font-weight: 600; color: #15803d; background: #f0fdf4; padding: 8px; border-radius: 6px;">
+                        </div>
+                    </div>
+                    <input type="file" id="inputDesain" style="display: none;" accept=".png,.jpg,.jpeg,.pdf">
+                </div>
+
+                <div class="form-group" style="margin-top: 16px;">
+                    <label for="catatanDesain"><strong>Catatan Desainer (Opsional)</strong></label>
+                    <textarea id="catatanDesain" class="form-control" rows="2"
+                        placeholder="Berikan catatan singkat mengenai versi revisi, penyesuaian font, atau aspek visual tertentu..."></textarea>
+                </div>
+
+                <!-- Referensi Acuan dari Pengaju -->
+                <div style="margin-top: 20px;">
+                    <span style="font-size: 13px; font-weight: 600; color: #475569;">Referensi Materi &amp; Konsep
+                        Terkait:</span>
+                    <div class="ref-card-grid">
+                        <div class="ref-item">
+                            <div>📄 <strong>Brief_Webinar.pdf</strong><br><small style="color: #64748b;">1.2 MB &bull;
+                                    Dokumen Acuan</small></div>
+                            <a href="#" style="color: #2563eb; text-decoration: none; font-size: 13px;">Unduh</a>
+                        </div>
+                        <div class="ref-item">
+                            <div>🖼️ <strong>Logo_FILKOM_HQ.png</strong><br><small style="color: #64748b;">850 KB &bull;
+                                    Aset Logo</small></div>
+                            <a href="#" style="color: #2563eb; text-decoration: none; font-size: 13px;">Unduh</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 24px;">
+                    <a href="daftar-permohonan.html" class="btn btn-secondary">&larr; Kembali ke Daftar</a>
+                    <button type="submit" class="btn btn-primary" id="btnSubmitDesain">Kirim Desain &rarr;</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Script Kontrol Validasi Upload (PC-CPD-01) -->
+    <script>
+        const inputDesain = document.getElementById('inputDesain');
+        const dropzoneArea = document.getElementById('dropzoneArea');
+        const fileInfoChip = document.getElementById('fileInfoChip');
+        const alertFileError = document.getElementById('alertFileError');
+        const alertUploadSuccess = document.getElementById('alertUploadSuccess');
+
+        inputDesain.addEventListener('change', function () {
+            if (this.files && this.files[0]) {
+                const file = this.files[0];
+                const fileSizeMB = file.size / (1024 * 1024);
+                const fileExtension = file.name.split('.').pop().toLowerCase();
+                const allowedExtensions = ['png', 'jpg', 'jpeg', 'pdf'];
+
+                // Validasi Ukuran > 10MB atau Ekstensi Tidak Valid (UI-13-02)
+                if (fileSizeMB > 10 || !allowedExtensions.includes(fileExtension)) {
+                    dropzoneArea.classList.add('error');
+                    alertFileError.style.display = 'block';
+                    alertUploadSuccess.style.display = 'none';
+                    fileInfoChip.style.display = 'none';
+                    this.value = ''; // Reset file input
+                } else {
+                    dropzoneArea.classList.remove('error');
+                    alertFileError.style.display = 'none';
+                    fileInfoChip.style.display = 'inline-block';
+                    fileInfoChip.textContent = `✓ ${file.name} (${fileSizeMB.toFixed(2)} MB) - Berkas Valid`;
+                }
+            }
+        });
+
+        document.getElementById('formKirimDesain').addEventListener('submit', function (e) {
+            e.preventDefault();
+            if (!inputDesain.files || inputDesain.files.length === 0) {
+                alert('Silakan pilih berkas desain terlebih dahulu.');
+                return;
+            }
+
+            // Simulasi Berhasil Unggah (UI-13-03)
+            alertUploadSuccess.style.display = 'block';
+            document.getElementById('badgeStatusSaatIni').className = 'badge badge-warning';
+            document.getElementById('badgeStatusSaatIni').textContent = 'Menunggu Verifikasi';
+            document.getElementById('btnSubmitDesain').disabled = true;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    </script>
+</body>
+
+</html>

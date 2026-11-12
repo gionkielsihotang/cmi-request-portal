@@ -1,0 +1,283 @@
+<!-- 
+  SUBBAB 4.3 UI IMPLEMENTATION CODE
+  ID Layar    : [GYS-IM-002]
+  Sketsa UI   : Bab 3.7 UI-06-01 s/d UI-06-04 (Formulir Pengajuan Revisi Desain)
+  Use Case    : UC-06 Mengajukan revisi desain
+  Penyusun    : Gion Yehezkiel Sihotang (255150401111041)
+-->
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulir Pengajuan Revisi Desain - CMI BEM FILKOM</title>
+    <link rel="stylesheet" href="../../assets/css/global.css">
+    <link rel="stylesheet" href="../../assets/css/components.css">
+    <link rel="stylesheet" href="../../assets/css/modal.css">
+    <style>
+        .revisi-container {
+            max-width: 900px;
+            margin: 30px auto;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .draft-preview {
+            width: 100%;
+            height: 280px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f1f5f9;
+            color: #64748b;
+            font-weight: 500;
+            margin: 15px 0;
+        }
+
+        .chips-container {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .chip {
+            background: #eff6ff;
+            color: #2563eb;
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 16px;
+            cursor: pointer;
+            border: 1px solid #bfdbfe;
+        }
+
+        .chip:hover {
+            background: #dbeafe;
+        }
+
+        .char-counter {
+            float: right;
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .error-border {
+            border-color: #ef4444 !important;
+        }
+
+        .banner-alert {
+            display: none;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .banner-danger {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+        }
+
+        .banner-success {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">CMI BEM FILKOM UB <small>Portal Publikasi & Riset</small></div>
+        <div class="nav-menu">
+            <a href="status-pengajuan.html">Dashboard</a>
+            <a href="status-pengajuan.html" class="active">Status Pengajuan</a>
+        </div>
+        <div class="nav-user">
+            <span class="user-role">Pengaju Internal</span>
+            <a href="../../index.html" class="btn-logout">Keluar</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="breadcrumb">Beranda &gt; Status Pengajuan &gt; Detail Request &gt; Form Revisi</div>
+
+        <div class="revisi-container">
+            <!-- UI-06-04: Alert Validasi Kosong -->
+            <div id="alertError" class="banner-alert banner-danger">
+                <strong>Peringatan:</strong> Catatan rincian perbaikan desain wajib diisi sebelum mengirim revisi!
+            </div>
+
+            <!-- UI-06-03: Alert Berhasil Terkirim -->
+            <div id="alertSuccess" class="banner-alert banner-success">
+                <strong>Berhasil:</strong> Catatan revisi telah dikirimkan ke tim CMI. Status permohonan kini:
+                <strong>Dalam Revisi Desain</strong>.
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div>
+                    <h2 style="color: #1e3a8a;">Formulir Pengajuan Revisi Desain</h2>
+                    <p style="color: #64748b; font-size: 14px;">Tuliskan rincian perbaikan desain sebelum batas waktu
+                        verifikasi berakhir.</p>
+                </div>
+                <!-- Sisa Waktu Verifikasi 1 Jam -->
+                <div class="badge badge-warning" id="badgeTimerVerifikasi" style="font-size: 13px; padding: 6px 12px;">
+                    ⏱️ Sisa waktu: <span id="timerVerif">00:45:10</span>
+                </div>
+            </div>
+
+            <!-- Card Info Pengajuan -->
+            <div class="meta-grid">
+                <div><small style="color: #64748b;">No. Pengajuan:</small><br><strong>INT-001</strong></div>
+                <div><small style="color: #64748b;">Jenis Publikasi:</small><br><strong>Instagram Feeds</strong></div>
+                <div><small style="color: #64748b;">Kementerian:</small><br><strong>Kemenristek</strong></div>
+            </div>
+
+            <!-- Pratinjau Desain yang Sedang Dikoreksi -->
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 14px; font-weight: 600; color: #334155;">Draf Desain Terakhir (Versi 1)</span>
+                <a href="#" style="font-size: 13px; color: #2563eb; text-decoration: none;">🔍 Lihat Gambar Lengkap</a>
+            </div>
+            <div class="draft-preview">
+                [Pratinjau Draf Desain INT-001 dari Tim CMI]
+            </div>
+
+            <!-- Form Isian Revisi -->
+            <form id="formRevisi">
+                <div class="form-group">
+                    <label for="teksRevisi"><strong>Catatan Rincian Perbaikan Desain *wajib diisi</strong></label>
+                    <span class="char-counter"><span id="charCount">0</span> / 1000 Karakter</span>
+                    <textarea id="teksRevisi" class="form-control" rows="5"
+                        placeholder="Contoh: Tolong sesuaikan logo sponsor di pojok kanan bawah, perbesar font judul acara, dan naikkan kontras warna teks sub-judul."></textarea>
+
+                    <div class="chips-container">
+                        <span class="chip" onclick="tambahTemplate('+ Revisi Tipografi: ')">+ Revisi Tipografi</span>
+                        <span class="chip" onclick="tambahTemplate('+ Penyesuaian Logo: ')">+ Penyesuaian Logo</span>
+                        <span class="chip" onclick="tambahTemplate('+ Palet Warna: ')">+ Palet Warna</span>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 20px;">
+                    <label><strong>Lampiran Gambar Acuan / Coretan Revisi (Opsional)</strong></label>
+                    <input type="file" id="berkasAcuan" class="form-control" accept=".jpg,.png,.pdf">
+                    <small style="color: #64748b;">Format: JPG, PNG, PDF (Maks. 10MB)</small>
+                </div>
+
+                <div
+                    style="background: #eff6ff; border-left: 4px solid #2563eb; padding: 12px; border-radius: 4px; font-size: 12px; color: #1e40af; margin: 20px 0;">
+                    <strong>Ketentuan Editorial BEM FILKOM UB:</strong> Setiap pengajuan memiliki kuota maksimal 2 kali
+                    siklus revisi minor. Pastikan seluruh koreksi telah dirangkum lengkap dalam satu kali pengiriman.
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 24px;">
+                    <a href="verifikasi-desain.html" class="btn btn-secondary">&larr; Kembali ke Verifikasi</a>
+                    <button type="submit" class="btn btn-primary" id="btnKirimRevisi">Kirim Revisi &rarr;</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- UI-06-02: Modal Konfirmasi Keterlambatan Penalti 1 Jam -->
+    <div id="modalPenalti" class="modal-backdrop" style="display: none;">
+        <div class="modal-box" style="max-width: 450px; text-align: center;">
+            <div style="font-size: 48px; margin-bottom: 10px;">⚠️</div>
+            <h3 style="color: #1e293b; margin-bottom: 8px;">Peringatan Keterlambatan Verifikasi</h3>
+            <p style="font-size: 13px; color: #64748b; line-height: 1.5;">Batas waktu verifikasi toleransi 1 jam telah
+                berakhir. Pengajuan revisi saat ini akan dikenakan penalti pemotongan poin kinerja kementerian.</p>
+
+            <div
+                style="background: #fef2f2; border: 1px dashed #ef4444; color: #991b1b; padding: 10px; border-radius: 8px; font-weight: 600; margin: 16px 0;">
+                ⚠️ Pengurangan: -5 Poin Kinerja Publikasi Internal
+            </div>
+
+            <p style="font-size: 13px; color: #475569;">Apakah Anda yakin ingin tetap mengirimkan revisi?</p>
+
+            <div style="display: flex; gap: 12px; justify-content: center; margin-top: 20px;">
+                <button class="btn btn-secondary" onclick="tutupModalPenalti()">Batal</button>
+                <button class="btn btn-primary" style="background: #1e3a8a;"
+                    onclick="konfirmasiKirimDenganPenalti()">Ya, Setujui &amp; Kirim</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script Kontrol Revisi & Penalti (PC-CRD-01 & 02) -->
+    <script>
+        const teksRevisiInput = document.getElementById('teksRevisi');
+        const charCount = document.getElementById('charCount');
+        const alertError = document.getElementById('alertError');
+        const alertSuccess = document.getElementById('alertSuccess');
+
+        // Update counter karakter
+        teksRevisiInput.addEventListener('input', () => {
+            charCount.textContent = teksRevisiInput.value.length;
+            if (teksRevisiInput.value.trim() !== '') {
+                teksRevisiInput.classList.remove('error-border');
+                alertError.style.display = 'none';
+            }
+        });
+
+        function tambahTemplate(teks) {
+            teksRevisiInput.value += teks;
+            charCount.textContent = teksRevisiInput.value.length;
+            teksRevisiInput.focus();
+        }
+
+        // Handle Submit Form
+        document.getElementById('formRevisi').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const catatan = teksRevisiInput.value.trim();
+
+            // 1. Validasi Kosong (UI-06-04)
+            if (!catatan) {
+                teksRevisiInput.classList.add('error-border');
+                alertError.style.display = 'block';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                return;
+            }
+
+            // 2. Simulasi Evaluasi Waktu 1 Jam (PC-CRD-01)
+            // Misal: jika waktu habis, munculkan modal penalti UI-06-02
+            const waktuLewatBatas = false; // Ubah true untuk menguji alur penalti
+
+            if (waktuLewatBatas) {
+                document.getElementById('modalPenalti').style.display = 'flex';
+            } else {
+                eksekusiSimpanRevisi();
+            }
+        });
+
+        function tutupModalPenalti() {
+            document.getElementById('modalPenalti').style.display = 'none';
+        }
+
+        function konfirmasiKirimDenganPenalti() {
+            tutupModalPenalti();
+            alert('Penalti -5 poin kementerian berhasil dicatat.');
+            eksekusiSimpanRevisi();
+        }
+
+        function eksekusiSimpanRevisi() {
+            alertSuccess.style.display = 'block';
+            teksRevisiInput.disabled = true;
+            document.getElementById('btnKirimRevisi').disabled = true;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+
+</html>

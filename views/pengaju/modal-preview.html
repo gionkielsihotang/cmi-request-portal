@@ -1,0 +1,195 @@
+<!-- 
+  SUBBAB 4.3 UI IMPLEMENTATION CODE
+  ID Layar    : [GYS-IM-001]
+  Sketsa UI   : Bab 3.7 UI-03-01 (Halaman - Preview Request)
+  Use Case    : UC-03 Meninjau preview request
+  Penyusun    : Gion Yehezkiel Sihotang (255150401111041)
+-->
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preview Request - CMI BEM FILKOM UB</title>
+    <link rel="stylesheet" href="../../assets/css/global.css">
+    <link rel="stylesheet" href="../../assets/css/components.css">
+    <style>
+        .preview-layout {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            margin-top: 20px;
+        }
+
+        .preview-card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+            border: 1px solid #e2e8f0;
+        }
+
+        .data-row {
+            margin-bottom: 16px;
+        }
+
+        .data-label {
+            font-size: 13px;
+            color: #64748b;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .data-value {
+            font-size: 15px;
+            color: #1e293b;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        .file-preview-box {
+            border: 2px dashed #cbd5e1;
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            color: #64748b;
+            background: #f8fafc;
+            margin: 15px 0;
+        }
+
+        .timer-box {
+            text-align: center;
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 24px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .countdown-display {
+            font-size: 48px;
+            font-weight: 800;
+            color: #1e3a8a;
+            font-family: monospace;
+            margin: 10px 0;
+        }
+
+        .step-badge {
+            background: #eff6ff;
+            color: #1d4ed8;
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">CMI BEM FILKOM UB <small>Portal Publikasi & Riset</small></div>
+        <div class="nav-menu">
+            <a href="status-pengajuan.html">Dashboard</a>
+            <a href="form-request.html" class="active">Pengajuan Request</a>
+            <a href="status-pengajuan.html">Status Pengajuan</a>
+        </div>
+        <div class="nav-user">
+            <span class="user-role">Pengaju Internal</span>
+            <a href="../../index.html" class="btn-logout">Keluar</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+            <div class="breadcrumb">Beranda &gt; Pengajuan Request &gt; Preview</div>
+            <span class="step-badge">Langkah 2 dari 2</span>
+        </div>
+
+        <h2 style="color: #1e3a8a; margin-top: 10px;">Preview Request</h2>
+
+        <div class="preview-layout">
+            <!-- Kolom Kiri: Rincian Data Form -->
+            <div class="preview-card">
+                <h3 style="margin-bottom: 20px; color: #1e293b;">Ringkasan data yang akan dikirim</h3>
+
+                <div class="data-row">
+                    <div class="data-label">Judul Publikasi</div>
+                    <div class="data-value" id="previewJudul">Open Recruitment Junior Staff SGE FILKOM 2026</div>
+                </div>
+                <div class="data-row">
+                    <div class="data-label">Kementerian / MinBur</div>
+                    <div class="data-value" id="previewKementerian">Internal Resource Empowerment</div>
+                </div>
+                <div class="data-row">
+                    <div class="data-label">Jenis Publikasi</div>
+                    <div class="data-value" id="previewJenis">Feeds</div>
+                </div>
+                <div class="data-row">
+                    <div class="data-label">Tanggal Publikasi</div>
+                    <div class="data-value" id="previewTanggal">25/10/2026</div>
+                </div>
+                <div class="data-row">
+                    <div class="data-label">Redaksional (Caption)</div>
+                    <div class="data-value" id="previewRedaksional">Pendaftaran Open Recruitment dibuka sampai 30
+                        Oktober 2026. Segera daftarkan dirimu melalui tautan bio.</div>
+                </div>
+                <div class="data-row">
+                    <div class="data-label">Berkas Referensi Desain</div>
+                    <div class="file-preview-box">
+                        <span id="previewNamaFile">📄 referensi-poster.png (2.5 MB)</span>
+                    </div>
+                </div>
+                <p style="font-size: 13px; color: #64748b;">Periksa kembali data. Gunakan tombol <strong>Back</strong>
+                    jika ingin mengubah isian formulir.</p>
+            </div>
+
+            <!-- Kolom Kanan: Timer & Tombol Submit/Back -->
+            <div>
+                <div class="preview-card timer-box">
+                    <div class="data-label">Sisa Waktu Preview</div>
+                    <div class="countdown-display" id="timerPreview">03:00</div>
+                    <p style="font-size: 12px; color: #64748b; margin-bottom: 24px;">Request otomatis dibatalkan jika
+                        waktu preview habis.</p>
+
+                    <button class="btn btn-primary" id="btnSubmitRequest"
+                        style="width: 100%; margin-bottom: 12px;">Submit Request</button>
+                    <button class="btn btn-secondary" id="btnBackToForm" style="width: 100%;">Back</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script Countdown 180 Detik (PC-CPR-04) -->
+    <script>
+        let sisaWaktu = 180; // 3 menit
+        const timerElement = document.getElementById('timerPreview');
+
+        const countdownInterval = setInterval(() => {
+            sisaWaktu--;
+            const menit = String(Math.floor(sisaWaktu / 60)).padStart(2, '0');
+            const detik = String(sisaWaktu % 60).padStart(2, '0');
+            timerElement.textContent = `${menit}:${detik}`;
+
+            // Implementasi Path 1 (PC-CPR-04): Timeout
+            if (sisaWaktu <= 0) {
+                clearInterval(countdownInterval);
+                alert('Waktu pratinjau telah habis. Pengajuan dibatalkan secara otomatis.');
+                window.location.href = 'form-request.html';
+            }
+        }, 1000);
+
+        document.getElementById('btnBackToForm').addEventListener('click', () => {
+            clearInterval(countdownInterval);
+            window.location.href = 'form-request.html';
+        });
+
+        document.getElementById('btnSubmitRequest').addEventListener('click', () => {
+            clearInterval(countdownInterval);
+            alert('Request berhasil diajukan dengan status "Dalam Antrian".');
+            window.location.href = 'status-pengajuan.html';
+        });
+    </script>
+</body>
+
+</html>
