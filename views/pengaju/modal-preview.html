@@ -161,35 +161,8 @@
     </div>
 
     <!-- Script Countdown 180 Detik (PC-CPR-04) -->
-    <script>
-        let sisaWaktu = 180; // 3 menit
-        const timerElement = document.getElementById('timerPreview');
-
-        const countdownInterval = setInterval(() => {
-            sisaWaktu--;
-            const menit = String(Math.floor(sisaWaktu / 60)).padStart(2, '0');
-            const detik = String(sisaWaktu % 60).padStart(2, '0');
-            timerElement.textContent = `${menit}:${detik}`;
-
-            // Implementasi Path 1 (PC-CPR-04): Timeout
-            if (sisaWaktu <= 0) {
-                clearInterval(countdownInterval);
-                alert('Waktu pratinjau telah habis. Pengajuan dibatalkan secara otomatis.');
-                window.location.href = 'form-request.html';
-            }
-        }, 1000);
-
-        document.getElementById('btnBackToForm').addEventListener('click', () => {
-            clearInterval(countdownInterval);
-            window.location.href = 'form-request.html';
-        });
-
-        document.getElementById('btnSubmitRequest').addEventListener('click', () => {
-            clearInterval(countdownInterval);
-            alert('Request berhasil diajukan dengan status "Dalam Antrian".');
-            window.location.href = 'status-pengajuan.html';
-        });
-    </script>
+    <script src="../../assets/js/countdown.js"></script>
+    <script src="../../assets/js/pengaju.js"></script>
 </body>
 
 </html>

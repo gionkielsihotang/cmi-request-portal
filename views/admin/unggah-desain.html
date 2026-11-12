@@ -200,51 +200,7 @@
     </div>
 
     <!-- Script Kontrol Validasi Upload (PC-CPD-01) -->
-    <script>
-        const inputDesain = document.getElementById('inputDesain');
-        const dropzoneArea = document.getElementById('dropzoneArea');
-        const fileInfoChip = document.getElementById('fileInfoChip');
-        const alertFileError = document.getElementById('alertFileError');
-        const alertUploadSuccess = document.getElementById('alertUploadSuccess');
-
-        inputDesain.addEventListener('change', function () {
-            if (this.files && this.files[0]) {
-                const file = this.files[0];
-                const fileSizeMB = file.size / (1024 * 1024);
-                const fileExtension = file.name.split('.').pop().toLowerCase();
-                const allowedExtensions = ['png', 'jpg', 'jpeg', 'pdf'];
-
-                // Validasi Ukuran > 10MB atau Ekstensi Tidak Valid (UI-13-02)
-                if (fileSizeMB > 10 || !allowedExtensions.includes(fileExtension)) {
-                    dropzoneArea.classList.add('error');
-                    alertFileError.style.display = 'block';
-                    alertUploadSuccess.style.display = 'none';
-                    fileInfoChip.style.display = 'none';
-                    this.value = ''; // Reset file input
-                } else {
-                    dropzoneArea.classList.remove('error');
-                    alertFileError.style.display = 'none';
-                    fileInfoChip.style.display = 'inline-block';
-                    fileInfoChip.textContent = `✓ ${file.name} (${fileSizeMB.toFixed(2)} MB) - Berkas Valid`;
-                }
-            }
-        });
-
-        document.getElementById('formKirimDesain').addEventListener('submit', function (e) {
-            e.preventDefault();
-            if (!inputDesain.files || inputDesain.files.length === 0) {
-                alert('Silakan pilih berkas desain terlebih dahulu.');
-                return;
-            }
-
-            // Simulasi Berhasil Unggah (UI-13-03)
-            alertUploadSuccess.style.display = 'block';
-            document.getElementById('badgeStatusSaatIni').className = 'badge badge-warning';
-            document.getElementById('badgeStatusSaatIni').textContent = 'Menunggu Verifikasi';
-            document.getElementById('btnSubmitDesain').disabled = true;
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-    </script>
+    <script src="../../assets/js/admin.js"></script>
 </body>
 
 </html>

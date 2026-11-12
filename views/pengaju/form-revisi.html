@@ -216,68 +216,8 @@
     </div>
 
     <!-- Script Kontrol Revisi & Penalti (PC-CRD-01 & 02) -->
-    <script>
-        const teksRevisiInput = document.getElementById('teksRevisi');
-        const charCount = document.getElementById('charCount');
-        const alertError = document.getElementById('alertError');
-        const alertSuccess = document.getElementById('alertSuccess');
-
-        // Update counter karakter
-        teksRevisiInput.addEventListener('input', () => {
-            charCount.textContent = teksRevisiInput.value.length;
-            if (teksRevisiInput.value.trim() !== '') {
-                teksRevisiInput.classList.remove('error-border');
-                alertError.style.display = 'none';
-            }
-        });
-
-        function tambahTemplate(teks) {
-            teksRevisiInput.value += teks;
-            charCount.textContent = teksRevisiInput.value.length;
-            teksRevisiInput.focus();
-        }
-
-        // Handle Submit Form
-        document.getElementById('formRevisi').addEventListener('submit', function (e) {
-            e.preventDefault();
-            const catatan = teksRevisiInput.value.trim();
-
-            // 1. Validasi Kosong (UI-06-04)
-            if (!catatan) {
-                teksRevisiInput.classList.add('error-border');
-                alertError.style.display = 'block';
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                return;
-            }
-
-            // 2. Simulasi Evaluasi Waktu 1 Jam (PC-CRD-01)
-            // Misal: jika waktu habis, munculkan modal penalti UI-06-02
-            const waktuLewatBatas = false; // Ubah true untuk menguji alur penalti
-
-            if (waktuLewatBatas) {
-                document.getElementById('modalPenalti').style.display = 'flex';
-            } else {
-                eksekusiSimpanRevisi();
-            }
-        });
-
-        function tutupModalPenalti() {
-            document.getElementById('modalPenalti').style.display = 'none';
-        }
-
-        function konfirmasiKirimDenganPenalti() {
-            tutupModalPenalti();
-            alert('Penalti -5 poin kementerian berhasil dicatat.');
-            eksekusiSimpanRevisi();
-        }
-
-        function eksekusiSimpanRevisi() {
-            alertSuccess.style.display = 'block';
-            teksRevisiInput.disabled = true;
-            document.getElementById('btnKirimRevisi').disabled = true;
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-    </script>
+    <script src="../../assets/js/countdown.js"></script>
+    <script src="../../assets/js/pengaju.js"></script>
 </body>
 
 </html>
