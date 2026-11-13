@@ -1,13 +1,15 @@
 <?php
-require_once 'Pengajuan.php';
-require_once 'HalamanStatusPengajuan.php';
-require_once 'HalamanDetailPengajuan.php';
+require_once __DIR__ . '/../../entities/Pengajuan.php';
+require_once __DIR__ . '/../../boundaries/HalamanStatusPengajuan.php';
+require_once __DIR__ . '/../../boundaries/HalamanDetailPengajuan.php';
 
-class ControlStatusPengajuan {
+class ControlStatusPengajuan
+{
 
     // PC-CSP-01
     // Mengambil daftar pengajuan publikasi milik mahasiswa
-    public function ambilDaftarPengajuan($idPengaju) {
+    public function ambilDaftarPengajuan($idPengaju)
+    {
 
         // 1. Query seluruh record pengajuan milik pengaju dari entitas Pengajuan
         $daftarPengajuan = Pengajuan::getByPengaju($idPengaju);
@@ -26,7 +28,8 @@ class ControlStatusPengajuan {
 
     // PC-CSP-02
     // Mengambil rincian detail permohonan pengajuan spesifik
-    public function ambilDetailPengajuan($idPengajuan) {
+    public function ambilDetailPengajuan($idPengajuan)
+    {
 
         // 1. Ambil rekaman data permohonan spesifik berdasarkan ID dari entitas Pengajuan
         $detailPengajuan = Pengajuan::getById($idPengajuan);

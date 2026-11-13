@@ -7,16 +7,18 @@
  * Penyusun    : Gion Yehezkiel Sihotang
  */
 
-require_once 'Pengajuan.php';
-require_once 'BerkasLampiran.php';
-require_once 'DialogPreviewRequest.php';
-require_once 'FormRequestInternal.php';
+require_once __DIR__ . '/../../entities/Pengajuan.php';
+require_once __DIR__ . '/../../entities/BerkasLampiran.php';
+require_once __DIR__ . '/../../boundaries/DialogPreviewRequest.php';
+require_once __DIR__ . '/../../boundaries/FormRequestInternal.php';
 
-class ControlPreviewRequest {
+class ControlPreviewRequest
+{
 
     // PC-CPR-01
     // Membuka modal pratinjau dan mengaktifkan timer hitung mundur
-    public function kirimDataPreview($dataForm, $daftarBerkas = []) {
+    public function kirimDataPreview($dataForm, $daftarBerkas = [])
+    {
 
         // 1. Tampilkan modal dialog pratinjau permohonan
         DialogPreviewRequest::tampilPreview($dataForm, $daftarBerkas);
@@ -27,7 +29,8 @@ class ControlPreviewRequest {
 
     // PC-CPR-02
     // Menyimpan permohonan final dan berkas referensi ke basis data
-    public function submitRequest($dataForm, $daftarBerkas = []) {
+    public function submitRequest($dataForm, $daftarBerkas = [])
+    {
 
         // 1. Simpan permohonan ke entitas Pengajuan dengan status awal 'Dalam Antrian'
         $idPengajuan = Pengajuan::simpanPengajuan($dataForm, "Dalam Antrian");
@@ -47,7 +50,8 @@ class ControlPreviewRequest {
 
     // PC-CPR-03
     // Membatalkan pratinjau dan kembali ke formulir pengisian
-    public function kirimBack() {
+    public function kirimBack()
+    {
 
         // 1. Tutup modal dialog pratinjau
         DialogPreviewRequest::tutupPreview();
@@ -58,7 +62,8 @@ class ControlPreviewRequest {
 
     // PC-CPR-04
     // Pengecekan batas waktu pratinjau (batal otomatis saat waktu habis)
-    public function cekCountdown($sisaWaktu) {
+    public function cekCountdown($sisaWaktu)
+    {
 
         // Memeriksa apakah waktu toleransi 180 detik telah habis
         if ($sisaWaktu <= 0) {
