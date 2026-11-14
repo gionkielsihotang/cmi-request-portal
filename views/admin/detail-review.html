@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard CMI</title>
+    <link rel="stylesheet" href="../../assets/css/global.css">
+    <link rel="stylesheet" href="../../assets/css/components.css">
+    <link rel="stylesheet" href="../../assets/css/modal.css">
+    <!-- Gaya lokal sementara agar halaman tampil mandiri.
+         Hapus blok style di bawah ini jika sudah tercakup global.css / components.css / modal.css -->
+    <style>
+        [hidden] {
+            display: none !important;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f1f3f5;
+            color: #1f2937;
+        }
+
+        nav {
+            background: #fff;
+            border-bottom: 1px solid #dde1e6;
+            height: 64px;
+            padding: 0 56px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: #2b57a7;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .menu {
+            display: flex;
+            gap: 48px;
+            height: 100%;
+        }
+
+        .menu a {
+            display: flex;
+            align-items: center;
+            height: 100%;
+            color: #4b5563;
+            text-decoration: none;
+            font-size: 18px;
+            border-bottom: 3px solid transparent;
+        }
+
+        .menu a.active {
+            color: #2b57a7;
+            font-weight: 700;
+            border-bottom-color: #2b57a7;
+        }
+
+        .right {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            font-size: 18px;
+            color: #4b5563;
+        }
+
+        .pill {
+            border: 1px solid #b9bfc7;
+            border-radius: 999px;
+            padding: 6px 20px;
+            font-size: 16px;
+            background: #fff;
+        }
+
+        .wrap {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 24px 16px 80px;
+        }
+
+        .crumb {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 16px;
+        }
+
+        .card {
+            background: #fff;
+            border: 1px solid #e0e4e9;
+            border-radius: 16px;
+            padding: 40px 48px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 32px;
+            color: #111827;
+        }
+
+        .head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .sub {
+            color: #6b7280;
+            font-size: 18px;
+            margin: 0 0 24px;
+        }
+
+        .alert {
+            border: 1.5px solid;
+            border-radius: 10px;
+            padding: 18px 24px;
+            font-weight: 700;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background: #e5f5ea;
+            border-color: #3aa76d;
+            color: #1d6b3f;
+        }
+
+        .alert-warning {
+            background: #fff3d0;
+            border-color: #e8b923;
+            color: #7a5000;
+        }
+
+        .badge {
+            display: inline-block;
+            border: 1.5px solid;
+            border-radius: 999px;
+            padding: 6px 20px;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .s-waiting {
+            background: #fdf0c0;
+            border-color: #e2b93a;
+            color: #7a5a00;
+        }
+
+        .s-ditinjau {
+            background: #dfe9fb;
+            border-color: #2b57a7;
+            color: #1c3d7a;
+        }
+
+        .s-diproses {
+            background: #e3f5e8;
+            border-color: #3aa76d;
+            color: #1d6b3f;
+        }
+
+        .s-ditolak {
+            background: #fde4e4;
+            border-color: #d14b4b;
+            color: #8a1f1f;
+        }
+
+        .s-grey {
+            background: #e9ebee;
+            border-color: #9aa1ab;
+            color: #374151;
+        }
+
+        .info {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        .lbl {
+            color: #6b7280;
+            font-size: 18px;
+            margin-bottom: 6px;
+        }
+
+        .val {
+            font-weight: 700;
+            font-size: 22px;
+        }
+
+        .box {
+            background: #f7f8fa;
+            border: 1px solid #dde1e6;
+            border-radius: 8px;
+            padding: 14px 20px;
+            color: #6b7280;
+            font-size: 18px;
+            margin: 8px 0 24px;
+        }
+
+        .chips {
+            display: flex;
+            gap: 16px;
+            margin: 8px 0 24px;
+        }
+
+        .chip {
+            background: #e9ebee;
+            border: 1.5px solid #9aa1ab;
+            border-radius: 999px;
+            padding: 6px 22px;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .check {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 20px;
+            margin: 10px 0;
+        }
+
+        .check input {
+            width: 24px;
+            height: 24px;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 80px;
+            border: 1.5px solid #9aa1ab;
+            border-radius: 8px;
+            padding: 14px 20px;
+            font: 18px Arial, sans-serif;
+            color: #374151;
+            margin: 8px 0 24px;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 24px;
+        }
+
+        .actions .grp {
+            display: flex;
+            gap: 16px;
+        }
+
+        .btn {
+            border: 1.5px solid #b9bfc7;
+            background: #fff;
+            color: #111827;
+            font-weight: 700;
+            font-size: 20px;
+            border-radius: 8px;
+            padding: 16px 36px;
+            cursor: pointer;
+        }
+
+        .btn.primary {
+            background: #2b57a7;
+            border-color: #2b57a7;
+            color: #fff;
+        }
+
+        .btn:disabled {
+            background: #e5e7eb;
+            border-color: #d1d5db;
+            color: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .btn-lihat-detail {
+            padding: 10px 22px;
+            font-size: 18px;
+        }
+
+        .filters {
+            display: flex;
+            gap: 14px;
+            margin: 16px 0 24px;
+        }
+
+        .f {
+            border: 1.5px solid #b9bfc7;
+            border-radius: 999px;
+            padding: 8px 26px;
+            font-size: 18px;
+            background: #fff;
+            color: #4b5563;
+            cursor: pointer;
+        }
+
+        .f.on {
+            background: #2b57a7;
+            border-color: #2b57a7;
+            color: #fff;
+            font-weight: 700;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 20px;
+        }
+
+        th {
+            text-align: left;
+            color: #6b7280;
+            font-size: 18px;
+            padding: 12px 8px;
+            border-bottom: 1px solid #e0e4e9;
+        }
+
+        td {
+            padding: 22px 8px;
+            border-bottom: 1px solid #e0e4e9;
+        }
+
+        td.no {
+            font-weight: 700;
+        }
+
+        .preview {
+            border: 1.5px solid #c9ced6;
+            background: #f6f7f9;
+            height: 340px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6b7280;
+            font-size: 20px;
+            position: relative;
+            margin: 8px 0 24px;
+        }
+
+        .preview svg {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .preview span {
+            position: relative;
+        }
+
+        .infobar {
+            background: #f1f3f5;
+            border-radius: 8px;
+            padding: 18px 24px;
+            color: #374151;
+            font-size: 18px;
+            margin-bottom: 24px;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .modal-dialog {
+            background: #fff;
+            border-radius: 16px;
+            padding: 40px 44px;
+            width: 660px;
+            max-width: 92%;
+        }
+
+        .modal-dialog h2 {
+            margin: 0 0 14px;
+            font-size: 26px;
+        }
+
+        .modal-dialog p {
+            margin: 0 0 32px;
+            color: #4b5563;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+
+        .modal-dialog .actions {
+            margin: 0;
+        }
+
+        @media(max-width:800px) {
+            nav {
+                padding: 0 16px;
+            }
+            .menu {
+                gap: 16px;
+            }
+            .info {
+                grid-template-columns: 1fr;
+            }
+            .card {
+                padding: 24px;
+            }
+            table {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <div class="brand">
+            <div class="logo">C</div>
+            CMI BEM FILKOM UB
+        </div>
+        <div class="menu">
+            <a class="active" href="dashboard-cmi.html">Dashboard CMI</a>
+            <a href="#">Riwayat Request</a>
+        </div>
+        <div class="right">
+            <span class="pill">CMI</span>
+            <span>Keluar</span>
+        </div>
+    </nav>
+
+    <div class="wrap">
+        <div class="crumb">Dashboard CMI</div>
+
+        <!-- === AWAL BLOK KODE: ADINDA (UI-11-01 | AM - IM-003 DashboardCMI) === -->
+        <div class="card">
+            <h1>Daftar Request Publikasi</h1>
+
+            <div class="filters" id="filterStatus">
+                <span class="f on" data-filter="Semua">Semua</span>
+                <span class="f" data-filter="Waiting">Waiting</span>
+                <span class="f" data-filter="Ditinjau">Ditinjau</span>
+            </div>
+
+            <div class="lbl">Request masuk</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>No.</th>
+                        <th>Pengaju</th>
+                        <th>Jenis</th>
+                        <th>Tgl publikasi</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="daftarRequest">
+                    <tr data-id="MP-004" data-status="Waiting">
+                        <td class="no">MP-004</td>
+                        <td>Himpunan A</td>
+                        <td>Feeds</td>
+                        <td>18/10/2026</td>
+                        <td><span class="badge s-waiting">Waiting</span></td>
+                        <td><button class="btn btn-lihat-detail" type="button">Lihat Detail</button></td>
+                    </tr>
+                    <tr data-id="MP-003" data-status="Ditinjau">
+                        <td class="no">MP-003</td>
+                        <td>UKM B</td>
+                        <td>Story</td>
+                        <td>17/10/2026</td>
+                        <td><span class="badge s-ditinjau">Ditinjau</span></td>
+                        <td><button class="btn btn-lihat-detail" type="button">Lihat Detail</button></td>
+                    </tr>
+                    <tr data-id="MP-002" data-status="Waiting">
+                        <td class="no">MP-002</td>
+                        <td>Komunitas C</td>
+                        <td>Feeds</td>
+                        <td>16/10/2026</td>
+                        <td><span class="badge s-waiting">Waiting</span></td>
+                        <td><button class="btn btn-lihat-detail" type="button">Lihat Detail</button></td>
+                    </tr>
+                    <tr data-id="MP-001" data-status="Diproses">
+                        <td class="no">MP-001</td>
+                        <td>Himpunan D</td>
+                        <td>Story</td>
+                        <td>15/10/2026</td>
+                        <td><span class="badge s-diproses">Diproses</span></td>
+                        <td><button class="btn btn-lihat-detail" type="button">Lihat Detail</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- === AKHIR BLOK KODE: ADINDA === -->
+    </div>
+
+    <script src="../../assets/js/admin.js"></script>
+</body>
+
+</html>

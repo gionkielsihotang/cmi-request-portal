@@ -1,0 +1,8 @@
+CREATE TABLE NOTIFIKASI(
+    idNotifikasi VARCHAR(20) NOT NULL PRIMARY KEY,
+    idPengajuan VARCHAR(20) NOT NULL,
+    idPengaju VARCHAR(20) NOT NULL,
+    emailTujuan VARCHAR(100) NOT NULL,
+    isiPesan TEXT NOT NULL,
+    FOREIGN KEY (idPengajuan) REFERENCES PENGAJUAN(idPengajuan),
+    FOREIGN KEY (idPengaju) REFERENCES PENGAJU_INTERNAL(idPengaju));
