@@ -1,66 +1,91 @@
 <?php
-/**
- * ENTITY CLASS - PACKAGE PENGAJUAN
- * Nama Kelas : BerkasLampiran
- * Acuan SDD  : Bab 3.4 & 3.5 Tabel BERKAS_LAMPIRAN
- */
+// ============================================================================
+// CLASS DIAGRAM MODUL 2 : <<entity>> BerkasLampiran (Package Pengajuan)
+// Penyusun              : [GYS] Gion Yehezkiel Sihotang
+// ============================================================================
 
 require_once __DIR__ . '/../config/database.php';
 
 class BerkasLampiran
 {
+    private ?PDO $pdo;
 
-    // Validasi ekstensi dan ukuran berkas maks 10 MB (PC-CRI-02)
-    public static function validasiBerkas($berkas)
+    public string $idBerkas = '';
+    public string $idPengajuan = '';
+    public string $namaBerkas = '';
+    public string $formatBerkas = '';
+    public float $ukuranBerkas = 0.0;
+    public string $kategoriBerkas = 'Referensi';
+    public string $pathPenyimpanan = '';
+
+    public function __construct(?PDO $pdo = null)
     {
-        if (empty($berkas) || ($berkas['size'] ?? 0) === 0) {
-            return true; // Opsional jika tidak ada file diunggah
+        if ($pdo instanceof PDO) {
+            $this->pdo = $pdo;
+        } elseif (isset($GLOBALS['pdo']) && $GLOBALS['pdo'] instanceof PDO) {
+            $this->pdo = $GLOBALS['pdo'];
+        } else {
+            $this->pdo = null;
         }
-
-        $allowedExt = ['jpg', 'jpeg', 'png', 'pdf'];
-        $maxSize = 10 * 1024 * 1024; // 10 MB
-        $ext = strtolower(pathinfo($berkas['name'], PATHINFO_EXTENSION));
-
-        if (!in_array($ext, $allowedExt) || $berkas['size'] > $maxSize) {
-            return false;
-        }
-        return true;
     }
 
-    // Simpan berkas ke folder uploads dan catat ke database (PC-CPR-02)
-    public static function simpanBerkas($idPengajuan, $berkas, $kategori = 'ReferensiInternal')
+    public function validasiBerkas(array $file, int $maxSizeMB = 10, array $allowedExt = ['jpg', 'jpeg', 'png', 'pdf']): array
     {
-        global $pdo;
-        if (empty($berkas) || ($berkas['size'] ?? 0) === 0)
+        if (empty($file['name']) || ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+            return ['valid' => false, 'message' => 'Berkas belum dipilih atau gagal diunggah.'];
+        }
+
+        $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        if (!in_array($ext, $allowedExt, true)) {
+            return ['valid' => false, 'message' => 'Format berkas tidak valid. Gunakan: ' . strtoupper(implode(', ', $allowedExt))];
+        }
+
+        $maxBytes = $maxSizeMB * 1024 * 1024;
+        if (($file['size'] ?? 0) > $maxBytes) {
+            return ['valid' => false, 'message' => "Ukuran berkas melebihi batas maksimal {$maxSizeMB} MB."];
+        }
+
+        return ['valid' => true, 'message' => 'Berkas valid.'];
+    }
+
+    public function simpanBerkas(array $data): bool
+    {
+        if (!$this->pdo)
             return false;
+        $sql = "INSERT INTO BERKAS_LAMPIRAN (
+                    idBerkas, idPengajuan, namaBerkas, formatBerkas, ukuranBerkas, kategoriBerkas, pathPenyimpanan
+                ) VALUES (
+                    :idBerkas, :idPengajuan, :namaBerkas, :formatBerkas, :ukuranBerkas, :kategoriBerkas, :pathPenyimpanan
+                )";
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute([
+            ':idBerkas' => $data['idBerkas'] ?? ('BRK-' . uniqid()),
+            ':idPengajuan' => $data['idPengajuan'],
+            ':namaBerkas' => $data['namaBerkas'],
+            ':formatBerkas' => $data['formatBerkas'],
+            ':ukuranBerkas' => $data['ukuranBerkas'],
+            ':kategoriBerkas' => $data['kategoriBerkas'] ?? 'Referensi',
+            ':pathPenyimpanan' => $data['pathPenyimpanan']
+        ]);
+    }
 
-        $idBerkas = 'BRK-' . uniqid();
-        $namaAsli = basename($berkas['name']);
-        $ext = strtolower(pathinfo($namaAsli, PATHINFO_EXTENSION));
-        $ukuranMB = round($berkas['size'] / (1024 * 1024), 2);
-        $targetPath = 'assets/uploads/referensi/' . $idBerkas . '_' . $namaAsli;
-
-        if (!empty($berkas['tmp_name'])) {
-            move_uploaded_file($berkas['tmp_name'], __DIR__ . '/../' . $targetPath);
+    public function getByPengajuan(string $idPengajuan, ?string $kategori = null): array
+    {
+        if (!$this->pdo)
+            return [];
+        if ($kategori) {
+            $stmt = $this->pdo->prepare("SELECT * FROM BERKAS_LAMPIRAN WHERE idPengajuan = :id AND kategoriBerkas = :kat");
+            $stmt->execute([':id' => $idPengajuan, ':kat' => $kategori]);
+        } else {
+            $stmt = $this->pdo->prepare("SELECT * FROM BERKAS_LAMPIRAN WHERE idPengajuan = :id");
+            $stmt->execute([':id' => $idPengajuan]);
         }
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 
-        if (isset($pdo)) {
-            $sql = "INSERT INTO BERKAS_LAMPIRAN 
-                    (idBerkas, idPengajuan, namaBerkas, formatBerkas, ukuranBerkas, kategoriBerkas, pathPenyimpanan) 
-                    VALUES (:idBerkas, :idPengajuan, :nama, :format, :ukuran, :kategori, :path)";
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute([
-                ':idBerkas' => $idBerkas,
-                ':idPengajuan' => $idPengajuan,
-                ':nama' => $namaAsli,
-                ':format' => $ext,
-                ':ukuran' => $ukuranMB,
-                ':kategori' => $kategori,
-                ':path' => $targetPath
-            ]);
-        }
-
-        return $idBerkas;
+    public function ambilBerkasDesain(string $idPengajuan): ?array
+    {
+        $list = $this->getByPengajuan($idPengajuan, 'HasilDesain');
+        return count($list) > 0 ? end($list) : null;
     }
 }
-?>

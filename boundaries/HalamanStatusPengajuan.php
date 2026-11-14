@@ -1,16 +1,43 @@
 <?php
+// ============================================================================
+// CLASS DIAGRAM MODUL 2 : <<boundary>> HalamanStatusPengajuan (Package Pengajuan)
+// Penyusun              : [GYS] Gion Yehezkiel Sihotang
+// ============================================================================
+
 class HalamanStatusPengajuan
 {
-    public static function tampilPesanBelumAda()
+    public function pilihMenuStatusPengajuan(): array
     {
-        header("Location: ../views/pengaju/status-pengajuan.html?state=empty");
-        exit;
+        return ['redirect' => '../views/pengaju/status-pengajuan.html'];
     }
 
-    public static function tampilDaftarPengajuan()
+    public function tampilPesanBelumAda(): array
     {
-        header("Location: ../views/pengaju/status-pengajuan.html");
-        exit;
+        return [
+            'empty' => true,
+            'message' => 'Belum ada pengajuan',
+            'data' => []
+        ];
+    }
+
+    public function klikBuatPengajuan(): array
+    {
+        return ['redirect' => '../views/pengaju/pilihan-pengajuan.html'];
+    }
+
+    public function tampilDaftarPengajuan(array $daftarPengajuan): array
+    {
+        if (empty($daftarPengajuan)) {
+            return $this->tampilPesanBelumAda();
+        }
+        return [
+            'empty' => false,
+            'data' => $daftarPengajuan
+        ];
+    }
+
+    public function pilihPengajuan(string $idPengajuan): array
+    {
+        return ['redirect' => "../views/pengaju/detail-pengajuan.html?id={$idPengajuan}"];
     }
 }
-?>

@@ -1,22 +1,64 @@
 <?php
+// ============================================================================
+// CLASS DIAGRAM MODUL 2 : <<boundary>> FormRequestInternal (Package Pengajuan)
+// Penyusun              : [GYS] Gion Yehezkiel Sihotang
+// ============================================================================
+
 class FormRequestInternal
 {
-    public static function tampilFormRequest()
+    public function klikMenuRequestInternal(): array
     {
-        header("Location: ../views/pengaju/form-request.html");
-        exit;
+        return ['redirect' => '../views/pengaju/form-request.html'];
     }
 
-    public static function tampilIndikatorError()
+    public function bukaFormRequest(): array
     {
-        header("Location: ../views/pengaju/form-request.html?error=kolom_kosong");
-        exit;
+        return ['redirect' => '../views/pengaju/form-request.html'];
     }
 
-    public static function tampilPeringatanBerkas($pesan = "Format atau ukuran berkas tidak valid")
+    public function tampilFormRequest(array $dataLama = []): array
     {
-        header("Location: ../views/pengaju/form-request.html?error=berkas_invalid&msg=" . urlencode($pesan));
-        exit;
+        return [
+            'view' => 'views/pengaju/form-request.html',
+            'formData' => $dataLama
+        ];
+    }
+
+    public function isiForm(array $dataForm): array
+    {
+        return $dataForm;
+    }
+
+    public function unggahBerkas(array $daftarBerkas): array
+    {
+        return $daftarBerkas;
+    }
+
+    public function klikNext(array $dataForm, array $daftarBerkas = []): array
+    {
+        return [
+            'step' => 'preview',
+            'data' => $dataForm,
+            'berkas' => $daftarBerkas
+        ];
+    }
+
+    public function tampilIndikatorError(string $pesanError = 'Lengkapi kolom yang ditandai', array $fieldErrors = []): array
+    {
+        return [
+            'success' => false,
+            'errorType' => 'validation',
+            'message' => $pesanError,
+            'fieldErrors' => $fieldErrors
+        ];
+    }
+
+    public function tampilPeringatanBerkas(string $pesanBerkas): array
+    {
+        return [
+            'success' => false,
+            'errorType' => 'file_error',
+            'message' => $pesanBerkas
+        ];
     }
 }
-?>

@@ -1,33 +1,70 @@
 <?php
+// ============================================================================
+// CLASS DIAGRAM MODUL 2 : <<boundary>> DialogPreviewRequest (Package Pengajuan)
+// Penyusun              : [GYS] Gion Yehezkiel Sihotang
+// ============================================================================
+
 class DialogPreviewRequest
 {
-    public static function tampilPreview($dataForm, $daftarBerkas = [])
+    public function tampilPreview(array $dataForm, array $daftarBerkas = [], int $durasi = 180): array
     {
-        header("Location: ../views/pengaju/modal-preview.html");
-        exit;
+        return [
+            'success' => true,
+            'modal' => 'preview',
+            'countdown' => $durasi,
+            'data' => $dataForm,
+            'berkas' => $daftarBerkas
+        ];
     }
 
-    public static function mulaiCountdown($detik = 180)
+    public function mulaiCountdown(int $durasi = 180): array
     {
-        // Timer dieksekusi di client-side oleh assets/js/countdown.js
-        return $detik;
+        return ['timerSeconds' => $durasi];
     }
 
-    public static function tampilNotifikasiBerhasil($status = "Dalam Antrian")
+    public function periksaDataPreview(array $dataForm): array
     {
-        header("Location: ../views/pengaju/detail-pengajuan.html?status=created");
-        exit;
+        return $dataForm;
     }
 
-    public static function tutupPreview()
+    public function klikSubmit(array $dataForm, array $daftarBerkas = []): array
     {
-        return true;
+        return [
+            'action' => 'submit_request',
+            'data' => $dataForm,
+            'berkas' => $daftarBerkas
+        ];
     }
 
-    public static function tampilNotifWaktuHabis()
+    public function klikBack(): array
     {
-        header("Location: ../views/pengaju/form-request.html?error=timeout");
-        exit;
+        return $this->tutupPreview();
+    }
+
+    public function tutupPreview(): array
+    {
+        return [
+            'modalClosed' => true,
+            'message' => 'Pratinjau ditutup, kembali ke formulir.'
+        ];
+    }
+
+    public function tampilNotifWaktuHabis(): array
+    {
+        return [
+            'success' => false,
+            'timeout' => true,
+            'message' => 'Waktu sesi pratinjau 3 menit telah habis. Silakan ulangi pengajuan.'
+        ];
+    }
+
+    public function tampilNotifikasiBerhasil(string $idPengajuan): array
+    {
+        return [
+            'success' => true,
+            'idPengajuan' => $idPengajuan,
+            'redirect' => "../views/pengaju/detail-pengajuan.html?id={$idPengajuan}&status=created",
+            'message' => 'Pengajuan berhasil dikirim.'
+        ];
     }
 }
-?>
