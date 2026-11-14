@@ -159,7 +159,9 @@ function initFormRequestInternal() {
     const alertBerkas = document.getElementById('alertErrorBerkas');
     const modalPreview = document.getElementById('modalPreviewRequest');
     const btnSubmitRequest = document.getElementById('btnSubmitRequest');
-    const btnBackPreview = document.getElementById('btnBackPreview');
+    const btnBackPreview = document.getElementById('btnBackToForm')
+        || document.getElementById('btnbacktoform')
+        || document.getElementById('btnBackPreview');
 
     let draftFormData = null;
 
@@ -341,8 +343,17 @@ function initFormRequestInternal() {
 }
 
 function initStandalonePreviewPage() {
-    const previewContainer = document.getElementById('standalonePreviewPage');
-    if (!previewContainer) return;
+    // Jangan jalankan jika sedang berada di halaman form-request.html
+    if (document.getElementById('formRequestInternal') || document.querySelector('form[data-page="form-request"]')) {
+        return;
+    }
+
+    const btnBack = document.getElementById('btnBackToForm')
+        || document.getElementById('btnbacktoform')
+        || document.getElementById('btnBackPreview');
+    const timerEl = document.getElementById('countdownTimer') || document.getElementById('previewCountdown');
+
+    if (!btnBack && !timerEl && !document.getElementById('standalonePreviewPage')) return;
 
     const raw = sessionStorage.getItem('cmi_preview_draft');
     const draft = raw ? JSON.parse(raw) : null;
@@ -361,8 +372,7 @@ function initStandalonePreviewPage() {
         });
     }
 
-    const timerEl = document.getElementById('countdownTimer') || document.getElementById('previewCountdown');
-    if (typeof CMITimer !== 'undefined') {
+    if (typeof CMITimer !== 'undefined' && timerEl) {
         CMITimer.start('preview_standalone', 180, timerEl, {
             onTimeout: () => {
                 alert('Waktu pratinjau 180 detik telah habis.');
@@ -371,9 +381,9 @@ function initStandalonePreviewPage() {
         });
     }
 
-    const btnBack = document.getElementById('btnBackPreview');
     if (btnBack) {
-        btnBack.addEventListener('click', () => {
+        btnBack.addEventListener('click', (e) => {
+            e.preventDefault();
             if (typeof CMITimer !== 'undefined') CMITimer.stop('preview_standalone');
             window.location.href = 'form-request.html';
         });
