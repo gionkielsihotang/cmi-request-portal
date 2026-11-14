@@ -7,23 +7,26 @@
  * Penyusun    : Gion Yehezkiel Sihotang
  */
 
-require_once 'Pengajuan.php';
-require_once 'BerkasLampiran.php';
-require_once 'FormRequestInternal.php';
-require_once 'ControlPreviewRequest.php';
+require_once __DIR__ . '/../../entities/Pengajuan.php';
+require_once __DIR__ . '/../../entities/BerkasLampiran.php';
+require_once __DIR__ . '/../../boundaries/FormRequestInternal.php';
+require_once __DIR__ . '/ControlPreviewRequest.php';
 
-class ControlRequestInternal {
+class ControlRequestInternal
+{
 
     // PC-CRI-01
     // Membuka formulir pengajuan publikasi internal
-    public function bukaFormRequest() {
+    public function bukaFormRequest()
+    {
         // Menginstruksikan antarmuka formulir internal untuk dibuka dan siap menerima input
         FormRequestInternal::tampilFormRequest();
     }
 
     // PC-CRI-02
     // Memvalidasi data formulir dan berkas lampiran request internal
-    public function kirimDataRequest($dataForm, $daftarBerkas = []) {
+    public function kirimDataRequest($dataForm, $daftarBerkas = [])
+    {
 
         // 1. Validasi kelengkapan isian kolom wajib ke entitas Pengajuan
         $lengkap = Pengajuan::cekKelengkapanForm($dataForm);
