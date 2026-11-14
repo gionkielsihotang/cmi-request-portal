@@ -1,9 +1,5 @@
 <?php
-// ============================================================================
-// CLASS DIAGRAM MODUL 2 : <<boundary>> FormRequestInternal (Package Pengajuan)
-// Penyusun              : [GYS] Gion Yehezkiel Sihotang
-// ============================================================================
-
+// gion
 class FormRequestInternal
 {
     public function klikMenuRequestInternal(): array

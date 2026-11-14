@@ -1,8 +1,5 @@
 <?php
-// ============================================================================
-// CLASS DIAGRAM MODUL 2 : <<entity>> Notifikasi (Package Peninjauan)
-// Penyusun              : [GYS] Gion Yehezkiel Sihotang
-// ============================================================================
+// gion
 
 require_once __DIR__ . '/../config/database.php';
 

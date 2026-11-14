@@ -1,9 +1,5 @@
 <?php
-// ============================================================================
-// CLASS DIAGRAM MODUL 2 : <<boundary>> FormRevisiDesain (Package Desain)
-// Penyusun              : [GYS] Gion Yehezkiel Sihotang
-// ============================================================================
-
+// gion
 class FormRevisiDesain
 {
     public function tampilFormRevisi(string $idPengajuan): array

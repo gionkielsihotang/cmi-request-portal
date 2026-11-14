@@ -1,9 +1,5 @@
 <?php
-// ============================================================================
-// CLASS DIAGRAM MODUL 2 : <<boundary>> HalamanStatusPengajuan (Package Pengajuan)
-// Penyusun              : [GYS] Gion Yehezkiel Sihotang
-// ============================================================================
-
+// gion
 class HalamanStatusPengajuan
 {
     public function pilihMenuStatusPengajuan(): array

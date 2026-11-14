@@ -1,8 +1,5 @@
 <?php
-// ============================================================================
-// CLASS DIAGRAM MODUL 2 : <<boundary>> DialogPreviewRequest (Package Pengajuan)
-// Penyusun              : [GYS] Gion Yehezkiel Sihotang
-// ============================================================================
+// gionn
 
 class DialogPreviewRequest
 {

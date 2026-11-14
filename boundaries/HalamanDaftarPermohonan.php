@@ -1,9 +1,5 @@
 <?php
-// ============================================================================
-// CLASS DIAGRAM MODUL 2 : <<boundary>> HalamanDaftarPermohonan (Package Peninjauan)
-// Penyusun              : [GYS] Gion Yehezkiel Sihotang
-// ============================================================================
-
+// gion
 class HalamanDaftarPermohonan
 {
     public function bukaDaftarPermohonan(): array

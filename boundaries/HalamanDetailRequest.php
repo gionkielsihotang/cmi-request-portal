@@ -1,9 +1,5 @@
 <?php
-// ============================================================================
-// CLASS DIAGRAM MODUL 2 : <<boundary>> HalamanDetailRequest (Package Peninjauan)
-// Penyusun              : [GYS] Gion Yehezkiel Sihotang
-// ============================================================================
-
+// gion
 class HalamanDetailRequest
 {
     public function tampilDetailRequest(array $detailRequest, array $daftarLampiran = []): array

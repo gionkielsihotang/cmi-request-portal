@@ -1,9 +1,5 @@
 <?php
-// ============================================================================
-// CLASS DIAGRAM MODUL 2 : <<boundary>> HalamanDashboardCMI (Package Peninjauan)
-// Penyusun              : [GYS] Gion Yehezkiel Sihotang
-// ============================================================================
-
+// gion
 class HalamanDashboardCMI
 {
     public function tampilDashboard(array $daftarRequest, string $filterStatus = 'Semua'): array

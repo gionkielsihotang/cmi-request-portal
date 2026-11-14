@@ -1,9 +1,5 @@
 <?php
-// ============================================================================
-// CLASS DIAGRAM MODUL 2 : <<entity>> CatatanRevisi (Package Desain)
-// Penyusun              : [GYS] Gion Yehezkiel Sihotang
-// ============================================================================
-
+// gion
 require_once __DIR__ . '/../config/database.php';
 
 class CatatanRevisi

@@ -1,9 +1,5 @@
 <?php
-// ============================================================================
-// CLASS DIAGRAM MODUL 2 : <<boundary>> DialogAlasanPenolakan (Package Peninjauan)
-// Penyusun              : [GYS] Gion Yehezkiel Sihotang
-// ============================================================================
-
+// gion
 class DialogAlasanPenolakan
 {
     public function tampilFormAlasan(string $idPengajuan): array

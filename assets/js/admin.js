@@ -1,190 +1,364 @@
-/**
- * SUBBAB 4.3 UI INTERACTION & API INTEGRATION (ADMIN CMI)
- * ID Kode     : [ADN-GYS-JS03]
- * Deskripsi   : Kontroler frontend sisi CMI (UC-10, UC-11, UC-12, UC-13)
- * Penyusun    : Adinda Marcelina & Gion Yehezkiel Sihotang
- */
+//gion
 
-document.addEventListener('DOMContentLoaded', () => {
-    initDashboardCMI();
-    initReviewDanPenolakan();
-    initUploadDesainCMI();
-});
+const CMI_API_URL = '../../api/cmi_api.php';
 
-/* ==========================================================================
-   1. DASHBOARD & DAFTAR PERMOHONAN CMI (UC-10 & UC-11: UI-10-01, UI-11-01)
-   ========================================================================== */
-async function initDashboardCMI() {
-    const tableBody = document.getElementById('tabelPermohonanCMI');
-    if (!tableBody) return;
+// ----------------------------------------------------------------------------
+// 1. UI-10-01 & UI-11-01: Daftar Permohonan CMI & Dashboard Filter Chip Status
+// ----------------------------------------------------------------------------
+function initDashboardDanDaftarCMI() {
+    // Navigasi klik tombol "Lihat Detail" atau baris tabel menuju detail-review.html
+    document.querySelectorAll('.btn-lihat-detail, [data-detail-id]').forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const row = btn.closest('tr');
+            const id = btn.dataset.detailId || (row ? row.dataset.id : '');
+            if (id) {
+                window.location.href = `detail-review.html?id=${encodeURIComponent(id)}`;
+            }
+        });
+    });
 
-    try {
-        const res = await fetch('../../api/cmi_api.php?action=get_requests');
-        const result = await res.json();
-        const requests = result.data || [];
+    // Filter chip status pada Dashboard CMI (Semua, Waiting, Ditinjau)
+    const filterChips = document.querySelectorAll('#filterStatus .f, [data-filter], [data-filter-status]');
+    const tableRows = document.querySelectorAll('#daftarRequest tr[data-status], tbody tr[data-status]');
 
-        if (requests.length === 0) return;
+    if (!filterChips.length) return;
 
-        tableBody.innerHTML = requests.map((req) => `
-            <tr>
-                <td><strong>${req.idPengajuan}</strong></td>
-                <td>${req.judulRequest}</td>
-                <td>${req.asalKementerian || '-'}</td>
-                <td>${req.tanggalPengajuan}</td>
-                <td><span class="badge badge-warning">${req.statusPengajuan}</span></td>
-                <td>
-                    <a href="detail-review.html?id=${encodeURIComponent(req.idPengajuan)}" class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;">Tinjau</a>
-                </td>
-            </tr>
-        `).join('');
-    } catch (err) {
-        console.warn('Mode preview statis: endpoint cmi_api.php belum aktif.');
-    }
+    filterChips.forEach((chip) => {
+        chip.addEventListener('click', () => {
+            filterChips.forEach((c) => c.classList.remove('on', 'active'));
+            chip.classList.add('on', 'active');
+
+            const targetStatus = (chip.dataset.filter || chip.dataset.filterStatus || 'Semua').toLowerCase();
+
+            tableRows.forEach((row) => {
+                const rowStatus = (row.dataset.status || '').toLowerCase();
+                if (targetStatus === 'semua' || rowStatus.includes(targetStatus)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    });
 }
 
-/* ==========================================================================
-   2. CHECKLIST SOP & MODAL PENOLAKAN REQUEST (UC-11 & UC-12)
-   ========================================================================== */
-function initReviewDanPenolakan() {
-    const sopCheckboxes = document.querySelectorAll('.sop-checkbox');
-    const btnTerimaProses = document.getElementById('btnTerimaProses');
+// ----------------------------------------------------------------------------
+// 2. UI-10-02, UI-11-02..05, UI-12-01..03: Detail Review, SOP, Proses & Tolak
+// ----------------------------------------------------------------------------
+function initDetailReviewCMI() {
+    const params = new URLSearchParams(window.location.search);
+    const idPengajuan = params.get('id') || 'MP-004';
 
-    // Aktifkan tombol "Terima & Proses" hanya jika semua SOP dicentang (UI-11-03)
-    if (sopCheckboxes.length > 0 && btnTerimaProses) {
-        const cekKelengkapanSOP = () => {
-            const semuaTercentang = Array.from(sopCheckboxes).every((cb) => cb.checked);
-            btnTerimaProses.disabled = !semuaTercentang;
-        };
+    // Tampilkan ID request dari URL (?id=...) jika ada elemen penampungnya
+    ['detailIdPengajuan', 'detailNoRequest', 'kodeRequest'].forEach((elId) => {
+        const el = document.getElementById(elId);
+        if (el) el.textContent = idPengajuan;
+    });
 
-        sopCheckboxes.forEach((cb) => cb.addEventListener('change', cekKelengkapanSOP));
-        cekKelengkapanSOP();
+    const badgeStatus = document.getElementById('badgeStatusReview');
 
-        btnTerimaProses.addEventListener('click', async () => {
-            btnTerimaProses.disabled = true;
-            btnTerimaProses.textContent = 'Memproses...';
+    // Elemen Alur Proses & SOP (UI-11-02 s/d UI-11-05)
+    const btnProses = document.getElementById('btnProsesRequest') || document.getElementById('btnTerimaRequest');
+    const modalProses = document.getElementById('modalKonfirmasiProses');
+    const btnBatalProses = document.getElementById('btnBatalProses');
+    const btnYaProses = document.getElementById('btnYaProses');
+    const bannerDiproses = document.getElementById('bannerRequestDiproses');
+    const auditLogList = document.getElementById('auditLogList');
 
-            try {
-                await fetch('../../api/cmi_api.php?action=proses_request', { method: 'POST' });
-            } catch (e) { }
+    const btnCatatKelengkapan = document.getElementById('btnCatatKelengkapan');
+    const textareaKelengkapan = document.getElementById('textareaCatatanKelengkapan');
 
-            alert('Request diterima! Status diperbarui menjadi "Diproses".');
-            window.location.href = 'unggah-desain.html';
+    // Elemen Alur Penolakan (UI-12-01 s/d UI-12-03)
+    const btnTolak = document.getElementById('btnTolakRequest');
+    const modalTolak = document.getElementById('modalAlasanPenolakan');
+    const btnCancelTolak = document.getElementById('btnCancelTolak');
+    const btnSendTolak = document.getElementById('btnSendTolak');
+    const textareaAlasan = document.getElementById('textareaAlasanPenolakan');
+    const alertTolakError = document.getElementById('alertPenolakanError');
+    const bannerDitolak = document.getElementById('bannerRequestDitolak');
+    const infoAlasanTerkirim = document.getElementById('infoAlasanPenolakan');
+
+    // Tombol lanjut unggah desain jika status Diproses
+    const btnKeUploadDesain = document.getElementById('btnKeUploadDesain');
+    if (btnKeUploadDesain) {
+        btnKeUploadDesain.addEventListener('click', () => {
+            window.location.href = `unggah-desain.html?id=${encodeURIComponent(idPengajuan)}`;
         });
     }
 
-    // Kontrol Modal Tolak Request (UI-12-01 & UI-12-02)
-    const btnBukaTolak = document.getElementById('btnBukaModalTolak');
-    const modalTolak = document.getElementById('modalTolak');
-    const btnKirimTolak = document.getElementById('btnKirimPenolakan');
-    const inputAlasan = document.getElementById('alasanPenolakan');
-    const errorAlasan = document.getElementById('errorAlasanTolak');
-
-    if (btnBukaTolak && modalTolak) {
-        btnBukaTolak.addEventListener('click', () => {
-            modalTolak.style.display = 'flex';
-        });
-    }
-
-    if (btnKirimTolak && inputAlasan) {
-        btnKirimTolak.addEventListener('click', async () => {
-            const alasan = inputAlasan.value.trim();
-
-            // Validasi alasan wajib diisi (UI-12-02)
-            if (!alasan) {
-                inputAlasan.classList.add('is-error');
-                if (errorAlasan) errorAlasan.style.display = 'block';
+    // Simpan Catatan Kelengkapan Materi (status tetap Ditinjau — UI-11-05)
+    if (btnCatatKelengkapan) {
+        btnCatatKelengkapan.addEventListener('click', async () => {
+            const catatan = textareaKelengkapan ? textareaKelengkapan.value.trim() : '';
+            if (!catatan) {
+                alert('Isi catatan kelengkapan materi terlebih dahulu.');
                 return;
             }
 
-            inputAlasan.classList.remove('is-error');
-            if (errorAlasan) errorAlasan.style.display = 'none';
-
             try {
-                await fetch('../../api/cmi_api.php?action=tolak_request', {
+                await fetch(CMI_API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ alasanPenolakan: alasan })
+                    body: JSON.stringify({
+                        action: 'simpan_catatan',
+                        idPengajuan: idPengajuan,
+                        catatanKelengkapan: catatan
+                    })
                 });
-            } catch (e) { }
+            } catch (err) {
+                console.warn('Mode tampilan lokal aktif.');
+            }
 
-            modalTolak.style.display = 'none';
-            alert('Pengajuan telah ditolak dan catatan dikirimkan ke pemohon.');
-            window.location.href = 'daftar-permohonan.html';
+            if (badgeStatus) badgeStatus.textContent = 'Ditinjau';
+            alert('Catatan kelengkapan materi berhasil disimpan. Status permohonan tetap Ditinjau.');
         });
     }
-}
 
-/* ==========================================================================
-   3. UNGGAH HASIL DESAIN CMI (UC-13: UI-13-01 s/d UI-13-03)
-   ========================================================================== */
-function initUploadDesainCMI() {
-    const formUpload = document.getElementById('formKirimDesain') || document.getElementById('formUploadDesain');
-    if (!formUpload) return;
-
-    const inputDesain = document.getElementById('inputDesain') || document.getElementById('fileDesain');
-    const dropzoneArea = document.getElementById('dropzoneArea');
-    const fileInfoChip = document.getElementById('fileInfoChip');
-    const alertFileError = document.getElementById('alertFileError');
-    const alertUploadSuccess = document.getElementById('alertUploadSuccess');
-
-    if (inputDesain) {
-        inputDesain.addEventListener('change', function () {
-            const file = this.files[0];
-            if (!file) return;
-
-            const fileSizeMB = file.size / (1024 * 1024);
-            const ext = file.name.split('.').pop().toLowerCase();
-            const allowed = ['png', 'jpg', 'jpeg', 'pdf'];
-
-            // Validasi berkas (UI-13-02)
-            if (fileSizeMB > 10 || !allowed.includes(ext)) {
-                if (dropzoneArea) dropzoneArea.classList.add('error');
-                if (alertFileError) alertFileError.style.display = 'block';
-                if (alertUploadSuccess) alertUploadSuccess.style.display = 'none';
-                if (fileInfoChip) fileInfoChip.style.display = 'none';
-                this.value = '';
-            } else {
-                if (dropzoneArea) dropzoneArea.classList.remove('error');
-                if (alertFileError) alertFileError.style.display = 'none';
-                if (fileInfoChip) {
-                    fileInfoChip.style.display = 'inline-block';
-                    fileInfoChip.textContent = `✓ ${file.name} (${fileSizeMB.toFixed(2)} MB) - Berkas Valid`;
-                }
+    // Buka Modal Konfirmasi Proses (UI-11-03)
+    if (btnProses) {
+        btnProses.addEventListener('click', () => {
+            if (modalProses) {
+                modalProses.hidden = false;
+                modalProses.classList.add('active');
+                modalProses.style.display = 'flex';
+            } else if (confirm('Proses request ini?')) {
+                eksekusiProsesRequest();
             }
         });
     }
 
-    formUpload.addEventListener('submit', async function (e) {
-        e.preventDefault();
+    if (btnBatalProses && modalProses) {
+        btnBatalProses.addEventListener('click', () => {
+            modalProses.hidden = true;
+            modalProses.classList.remove('active');
+            modalProses.style.display = 'none';
+        });
+    }
 
-        if (!inputDesain || !inputDesain.files || inputDesain.files.length === 0) {
-            alert('Silakan pilih berkas hasil desain terlebih dahulu.');
+    async function eksekusiProsesRequest() {
+        try {
+            await fetch(CMI_API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'proses_request',
+                    idPengajuan: idPengajuan,
+                    idCMI: 'CMI-001'
+                })
+            });
+        } catch (err) {
+            console.warn('Mode tampilan lokal aktif.');
+        }
+
+        if (modalProses) {
+            modalProses.hidden = true;
+            modalProses.classList.remove('active');
+            modalProses.style.display = 'none';
+        }
+        if (badgeStatus) badgeStatus.textContent = 'Diproses';
+        if (bannerDiproses) {
+            bannerDiproses.hidden = false;
+            bannerDiproses.style.display = 'block';
+        }
+        if (btnKeUploadDesain) {
+            btnKeUploadDesain.hidden = false;
+            btnKeUploadDesain.style.display = 'inline-block';
+        }
+
+        if (auditLogList) {
+            const li = document.createElement('li');
+            li.textContent = `[${new Date().toLocaleString('id-ID')}] Admin CMI memproses permohonan (${idPengajuan}) -> Status: Diproses`;
+            auditLogList.prepend(li);
+        }
+    }
+
+    if (btnYaProses) {
+        btnYaProses.addEventListener('click', eksekusiProsesRequest);
+    }
+
+    // Buka Modal Alasan Penolakan (UI-12-01)
+    if (btnTolak) {
+        btnTolak.addEventListener('click', () => {
+            if (alertTolakError) {
+                alertTolakError.hidden = true;
+                alertTolakError.style.display = 'none';
+            }
+            if (textareaAlasan) textareaAlasan.classList.remove('is-error');
+            if (modalTolak) {
+                modalTolak.hidden = false;
+                modalTolak.classList.add('active');
+                modalTolak.style.display = 'flex';
+            }
+        });
+    }
+
+    if (btnCancelTolak && modalTolak) {
+        btnCancelTolak.addEventListener('click', () => {
+            modalTolak.hidden = true;
+            modalTolak.classList.remove('active');
+            modalTolak.style.display = 'none';
+        });
+    }
+
+    // Validasi & Kirim Alasan Penolakan (UI-12-02 & UI-12-03)
+    if (btnSendTolak) {
+        btnSendTolak.addEventListener('click', async () => {
+            const alasan = textareaAlasan ? textareaAlasan.value.trim() : '';
+
+            if (!alasan) {
+                if (textareaAlasan) textareaAlasan.classList.add('is-error');
+                if (alertTolakError) {
+                    alertTolakError.textContent = 'Alasan penolakan wajib diisi.';
+                    alertTolakError.hidden = false;
+                    alertTolakError.style.display = 'block';
+                }
+                return;
+            }
+
+            try {
+                await fetch(CMI_API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'tolak_request',
+                        idPengajuan: idPengajuan,
+                        alasanPenolakan: alasan
+                    })
+                });
+            } catch (err) {
+                console.warn('Mode tampilan lokal aktif.');
+            }
+
+            if (modalTolak) {
+                modalTolak.hidden = true;
+                modalTolak.classList.remove('active');
+                modalTolak.style.display = 'none';
+            }
+            if (badgeStatus) badgeStatus.textContent = 'Ditolak';
+            if (bannerDitolak) {
+                bannerDitolak.hidden = false;
+                bannerDitolak.style.display = 'block';
+            }
+            if (infoAlasanTerkirim) infoAlasanTerkirim.textContent = alasan;
+        });
+    }
+}
+
+// ----------------------------------------------------------------------------
+// 3. UI-13-01 s/d UI-13-03: Halaman Unggah Hasil Desain CMI & Timer 1 Jam
+// ----------------------------------------------------------------------------
+function initUploadDesainCMI() {
+    const formUpload = document.getElementById('formUploadDesain') || document.querySelector('form[data-page="unggah-desain"]');
+    if (!formUpload) return;
+
+    const params = new URLSearchParams(window.location.search);
+    const idPengajuan = params.get('id') || formUpload.dataset.idPengajuan || 'MP-004';
+
+    const inputDesain = formUpload.querySelector('#fileDesain, #berkasDesain, input[type="file"]');
+    const dropzone = formUpload.querySelector('#dropzoneDesain, .dropzone');
+    const alertError = document.getElementById('alertUploadError');
+    const bannerBerhasil = document.getElementById('bannerUploadBerhasil');
+    const badgeStatus = document.getElementById('badgeStatusUpload');
+    const timerEl = document.getElementById('uploadVerifikasiCountdown') || document.getElementById('countdownTimer');
+    const btnSimpanDraf = document.getElementById('btnSimpanDraf');
+
+    function validateDesignFile(file) {
+        if (!file) {
+            return { valid: false, message: 'Pilih berkas hasil desain terlebih dahulu.' };
+        }
+        const allowedExt = ['png', 'jpg', 'jpeg', 'pdf'];
+        const ext = file.name.split('.').pop().toLowerCase();
+        const maxBytes = 10 * 1024 * 1024;
+
+        if (!allowedExt.includes(ext) || file.size > maxBytes) {
+            return {
+                valid: false,
+                message: 'Format berkas tidak didukung atau ukuran melebihi batas maksimal 10 MB (PNG/JPG/PDF).'
+            };
+        }
+        return { valid: true };
+    }
+
+    if (inputDesain) {
+        inputDesain.addEventListener('change', () => {
+            if (alertError) {
+                alertError.hidden = true;
+                alertError.style.display = 'none';
+            }
+            if (dropzone) dropzone.classList.remove('error');
+
+            const file = inputDesain.files[0];
+            if (!file) return;
+
+            const check = validateDesignFile(file);
+            if (!check.valid) {
+                if (dropzone) dropzone.classList.add('error');
+                if (alertError) {
+                    alertError.textContent = check.message;
+                    alertError.hidden = false;
+                    alertError.style.display = 'block';
+                }
+                inputDesain.value = '';
+            }
+        });
+    }
+
+    if (btnSimpanDraf) {
+        btnSimpanDraf.addEventListener('click', () => {
+            alert('Draf unggahan hasil desain berhasil disimpan sementara.');
+        });
+    }
+
+    formUpload.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (alertError) {
+            alertError.hidden = true;
+            alertError.style.display = 'none';
+        }
+        if (dropzone) dropzone.classList.remove('error');
+
+        const file = inputDesain && inputDesain.files ? inputDesain.files[0] : null;
+        const check = validateDesignFile(file);
+
+        if (!check.valid) {
+            if (dropzone) dropzone.classList.add('error');
+            if (alertError) {
+                alertError.textContent = check.message;
+                alertError.hidden = false;
+                alertError.style.display = 'block';
+            }
             return;
         }
 
-        const btnSubmit = document.getElementById('btnSubmitDesain') || document.getElementById('btnKirimDesain');
-        if (btnSubmit) {
-            btnSubmit.disabled = true;
-            btnSubmit.textContent = 'Mengunggah...';
-        }
-
-        const formData = new FormData(formUpload);
+        const fd = new FormData();
+        fd.append('action', 'upload_desain');
+        fd.append('idPengajuan', idPengajuan);
+        fd.append('fileDesain', file);
 
         try {
-            await fetch('../../api/cmi_api.php?action=upload_desain', {
-                method: 'POST',
-                body: formData
-            });
-        } catch (err) { }
-
-        // Update UI ke State Berhasil Unggah (UI-13-03)
-        if (alertUploadSuccess) alertUploadSuccess.style.display = 'block';
-        const badgeStatus = document.getElementById('badgeStatusSaatIni');
-        if (badgeStatus) {
-            badgeStatus.className = 'badge badge-warning';
-            badgeStatus.textContent = 'Menunggu Verifikasi';
+            await fetch(CMI_API_URL, { method: 'POST', body: fd });
+        } catch (err) {
+            console.warn('Mode tampilan lokal aktif.');
         }
-        if (btnSubmit) btnSubmit.textContent = 'Terkirim';
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        if (badgeStatus) badgeStatus.textContent = 'Menunggu Verifikasi';
+        if (bannerBerhasil) {
+            bannerBerhasil.hidden = false;
+            bannerBerhasil.style.display = 'block';
+        }
+
+        if (typeof CMITimer !== 'undefined') {
+            CMITimer.start('upload_verifikasi_1jam', 3600, timerEl, { includeHours: true });
+        }
     });
 }
+
+// ----------------------------------------------------------------------------
+// INISIALISASI OTOMATIS SAAT HALAMAN DIMUAT
+// ----------------------------------------------------------------------------
+document.addEventListener('DOMContentLoaded', () => {
+    initDashboardDanDaftarCMI();
+    initDetailReviewCMI();
+    initUploadDesainCMI();
+});

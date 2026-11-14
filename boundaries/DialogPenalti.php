@@ -1,9 +1,5 @@
 <?php
-// ============================================================================
-// CLASS DIAGRAM MODUL 2 : <<boundary>> DialogPenalti (Package Desain)
-// Penyusun              : [GYS] Gion Yehezkiel Sihotang
-// ============================================================================
-
+// gion
 class DialogPenalti
 {
     public function tampilDialogPenalti(string $idPengajuan, int $poinPenalti = -5): array

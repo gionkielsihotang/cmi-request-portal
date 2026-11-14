@@ -1,9 +1,5 @@
 <?php
-// ============================================================================
-// CLASS DIAGRAM MODUL 2 : <<boundary>> DialogKonfirmasi (Package Desain)
-// Penyusun              : [GYS] Gion Yehezkiel Sihotang
-// ============================================================================
-
+// gion
 class DialogKonfirmasi
 {
     public function bukaDialogKonfirmasi(string $idPengajuan, string $pesan = 'Setujui desain ini?'): array

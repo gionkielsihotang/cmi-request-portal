@@ -1,72 +1,60 @@
-/**
- * SUBBAB 4.2 & 4.3 CLIENT-SIDE LOGIC
- * ID Kode     : [GYS-JS01]
- * Deskripsi   : Utilitas Timer Hitung Mundur (180s Preview & 3600s Verifikasi Desain)
- * Acuan SDD   : PC-CPR-01, PC-CPR-04, PC-CVD-03, PC-CRD-01
- * Penyusun    : Gion Yehezkiel Sihotang
- */
+const CMITimer = (() => {
+    const activeIntervals = {};
 
-const PortalTimer = (() => {
-    const activeTimers = {};
+    function formatTime(totalSeconds, includeHours = false) {
+        const safeSeconds = Math.max(0, parseInt(totalSeconds, 10) || 0);
+        const hrs = Math.floor(safeSeconds / 3600);
+        const mins = Math.floor((safeSeconds % 3600) / 60);
+        const secs = safeSeconds % 60;
 
-    // Format detik ke MM:SS (untuk Preview 3 Menit)
-    function formatMenitDetik(totalDetik) {
-        const menit = String(Math.floor(totalDetik / 60)).padStart(2, '0');
-        const detik = String(totalDetik % 60).padStart(2, '0');
-        return `${menit}:${detik}`;
+        const pad = (num) => String(num).padStart(2, '0');
+        if (includeHours || hrs > 0) {
+            return `${pad(hrs)}:${pad(mins)}:${pad(secs)}`;
+        }
+        return `${pad(mins)}:${pad(secs)}`;
     }
 
-    // Format detik ke HH:MM:SS (untuk Verifikasi 1 Jam)
-    function formatJamMenitDetik(totalDetik) {
-        const jam = String(Math.floor(totalDetik / 3600)).padStart(2, '0');
-        const sisaSetelahJam = totalDetik % 3600;
-        const menit = String(Math.floor(sisaSetelahJam / 60)).padStart(2, '0');
-        const detik = String(sisaSetelahJam % 60).padStart(2, '0');
-        return `${jam}:${menit}:${detik}`;
-    }
+    function start(timerKey, durationSeconds, targetElement, options = {}) {
+        stop(timerKey);
 
-    /**
-     * Menjalankan timer hitung mundur
-     * @param {Object} config - { key, durasiDetik, elementId, format, onTick, onTimeout }
-     */
-    function start({ key, durasiDetik, elementId, format = 'MM:SS', onTick, onTimeout }) {
-        stop(key); // Hentikan timer lama jika ada dengan key sama
+        let remaining = parseInt(durationSeconds, 10) || 0;
+        const includeHours = Boolean(options.includeHours);
 
-        let sisaWaktu = durasiDetik;
-        const targetEl = document.getElementById(elementId);
+        if (targetElement) {
+            targetElement.textContent = formatTime(remaining, includeHours);
+        }
 
-        const render = () => {
-            if (targetEl) {
-                targetEl.textContent = format === 'HH:MM:SS'
-                    ? formatJamMenitDetik(sisaWaktu)
-                    : formatMenitDetik(sisaWaktu);
-            }
-            if (typeof onTick === 'function') onTick(sisaWaktu);
-        };
+        if (remaining <= 0) {
+            if (typeof options.onTimeout === 'function') options.onTimeout();
+            return;
+        }
 
-        render();
+        activeIntervals[timerKey] = setInterval(() => {
+            remaining -= 1;
 
-        activeTimers[key] = setInterval(() => {
-            sisaWaktu--;
-
-            if (sisaWaktu <= 0) {
-                sisaWaktu = 0;
-                render();
-                stop(key);
-                if (typeof onTimeout === 'function') onTimeout();
-                return;
+            if (targetElement) {
+                targetElement.textContent = formatTime(remaining, includeHours);
             }
 
-            render();
+            if (typeof options.onTick === 'function') {
+                options.onTick(remaining);
+            }
+
+            if (remaining <= 0) {
+                stop(timerKey);
+                if (typeof options.onTimeout === 'function') {
+                    options.onTimeout();
+                }
+            }
         }, 1000);
     }
 
-    function stop(key) {
-        if (activeTimers[key]) {
-            clearInterval(activeTimers[key]);
-            delete activeTimers[key];
+    function stop(timerKey) {
+        if (activeIntervals[timerKey]) {
+            clearInterval(activeIntervals[timerKey]);
+            delete activeIntervals[timerKey];
         }
     }
 
-    return { start, stop };
+    return { start, stop, formatTime };
 })();
