@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard CMI</title>
+    <title>Detail Request - Review CMI</title>
     <link rel="stylesheet" href="../../assets/css/global.css">
     <link rel="stylesheet" href="../../assets/css/components.css">
     <link rel="stylesheet" href="../../assets/css/modal.css">
@@ -126,12 +126,6 @@
             margin-bottom: 8px;
         }
 
-        .sub {
-            color: #6b7280;
-            font-size: 18px;
-            margin: 0 0 24px;
-        }
-
         .alert {
             border: 1.5px solid;
             border-radius: 10px;
@@ -162,12 +156,6 @@
             font-size: 16px;
         }
 
-        .s-waiting {
-            background: #fdf0c0;
-            border-color: #e2b93a;
-            color: #7a5a00;
-        }
-
         .s-ditinjau {
             background: #dfe9fb;
             border-color: #2b57a7;
@@ -178,18 +166,6 @@
             background: #e3f5e8;
             border-color: #3aa76d;
             color: #1d6b3f;
-        }
-
-        .s-ditolak {
-            background: #fde4e4;
-            border-color: #d14b4b;
-            color: #8a1f1f;
-        }
-
-        .s-grey {
-            background: #e9ebee;
-            border-color: #9aa1ab;
-            color: #374151;
         }
 
         .info {
@@ -218,6 +194,11 @@
             color: #6b7280;
             font-size: 18px;
             margin: 8px 0 24px;
+        }
+
+        .box ul, ul.box {
+            list-style: none;
+            padding-left: 20px;
         }
 
         .chips {
@@ -282,6 +263,11 @@
             cursor: pointer;
         }
 
+        a.btn {
+            display: inline-block;
+            text-decoration: none;
+        }
+
         .btn.primary {
             background: #2b57a7;
             border-color: #2b57a7;
@@ -293,90 +279,6 @@
             border-color: #d1d5db;
             color: #9ca3af;
             cursor: not-allowed;
-        }
-
-        .btn-lihat-detail {
-            padding: 10px 22px;
-            font-size: 18px;
-        }
-
-        .filters {
-            display: flex;
-            gap: 14px;
-            margin: 16px 0 24px;
-        }
-
-        .f {
-            border: 1.5px solid #b9bfc7;
-            border-radius: 999px;
-            padding: 8px 26px;
-            font-size: 18px;
-            background: #fff;
-            color: #4b5563;
-            cursor: pointer;
-        }
-
-        .f.on {
-            background: #2b57a7;
-            border-color: #2b57a7;
-            color: #fff;
-            font-weight: 700;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 20px;
-        }
-
-        th {
-            text-align: left;
-            color: #6b7280;
-            font-size: 18px;
-            padding: 12px 8px;
-            border-bottom: 1px solid #e0e4e9;
-        }
-
-        td {
-            padding: 22px 8px;
-            border-bottom: 1px solid #e0e4e9;
-        }
-
-        td.no {
-            font-weight: 700;
-        }
-
-        .preview {
-            border: 1.5px solid #c9ced6;
-            background: #f6f7f9;
-            height: 340px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #6b7280;
-            font-size: 20px;
-            position: relative;
-            margin: 8px 0 24px;
-        }
-
-        .preview svg {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-        }
-
-        .preview span {
-            position: relative;
-        }
-
-        .infobar {
-            background: #f1f3f5;
-            border-radius: 8px;
-            padding: 18px 24px;
-            color: #374151;
-            font-size: 18px;
-            margin-bottom: 24px;
         }
 
         .modal-overlay {
@@ -417,17 +319,17 @@
             nav {
                 padding: 0 16px;
             }
+
             .menu {
                 gap: 16px;
             }
+
             .info {
                 grid-template-columns: 1fr;
             }
+
             .card {
                 padding: 24px;
-            }
-            table {
-                font-size: 16px;
             }
         }
     </style>
@@ -450,66 +352,92 @@
     </nav>
 
     <div class="wrap">
-        <div class="crumb">Dashboard CMI</div>
+        <div class="crumb">Dashboard CMI / Detail Request</div>
 
-        <!-- === AWAL BLOK KODE: ADINDA (UI-11-01 | AM - IM-003 DashboardCMI) === -->
+        <!-- === AWAL BLOK KODE: ADINDA (UI-11-02 s/d UI-11-05) === -->
+
+        <!-- [ADN - IM-006] DetailRequestDiproses (UI-11-04): banner berhasil diproses -->
+        <div class="alert alert-success" id="bannerRequestDiproses" hidden>
+            Request berhasil diproses. Notifikasi otomatis telah terkirim ke pengaju.
+        </div>
+
+
         <div class="card">
-            <h1>Daftar Request Publikasi</h1>
-
-            <div class="filters" id="filterStatus">
-                <span class="f on" data-filter="Semua">Semua</span>
-                <span class="f" data-filter="Waiting">Waiting</span>
-                <span class="f" data-filter="Ditinjau">Ditinjau</span>
+            <div class="head">
+                <h1>Detail Request MP-003</h1>
+                <span class="badge s-ditinjau" id="badgeStatusReview">Ditinjau</span>
             </div>
 
-            <div class="lbl">Request masuk</div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>No.</th>
-                        <th>Pengaju</th>
-                        <th>Jenis</th>
-                        <th>Tgl publikasi</th>
-                        <th>Status</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody id="daftarRequest">
-                    <tr data-id="MP-004" data-status="Waiting">
-                        <td class="no">MP-004</td>
-                        <td>Himpunan A</td>
-                        <td>Feeds</td>
-                        <td>18/10/2026</td>
-                        <td><span class="badge s-waiting">Waiting</span></td>
-                        <td><button class="btn btn-lihat-detail" type="button">Lihat Detail</button></td>
-                    </tr>
-                    <tr data-id="MP-003" data-status="Ditinjau">
-                        <td class="no">MP-003</td>
-                        <td>UKM B</td>
-                        <td>Story</td>
-                        <td>17/10/2026</td>
-                        <td><span class="badge s-ditinjau">Ditinjau</span></td>
-                        <td><button class="btn btn-lihat-detail" type="button">Lihat Detail</button></td>
-                    </tr>
-                    <tr data-id="MP-002" data-status="Waiting">
-                        <td class="no">MP-002</td>
-                        <td>Komunitas C</td>
-                        <td>Feeds</td>
-                        <td>16/10/2026</td>
-                        <td><span class="badge s-waiting">Waiting</span></td>
-                        <td><button class="btn btn-lihat-detail" type="button">Lihat Detail</button></td>
-                    </tr>
-                    <tr data-id="MP-001" data-status="Diproses">
-                        <td class="no">MP-001</td>
-                        <td>Himpunan D</td>
-                        <td>Story</td>
-                        <td>15/10/2026</td>
-                        <td><span class="badge s-diproses">Diproses</span></td>
-                        <td><button class="btn btn-lihat-detail" type="button">Lihat Detail</button></td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="info">
+                <div>
+                    <div class="lbl">Pengaju</div>
+                    <div class="val">UKM B</div>
+                </div>
+                <div>
+                    <div class="lbl">Tanggal publikasi</div>
+                    <div class="val">17/10/2026</div>
+                </div>
+                <div>
+                    <div class="lbl">Jenis postingan</div>
+                    <div class="val">Story</div>
+                </div>
+            </div>
+
+            <div class="lbl">Detail konten</div>
+            <div class="box">[Caption / detail konten dari pengaju]</div>
+
+            <div class="lbl">File lampiran</div>
+            <div class="chips">
+                <span class="chip">poster-story.png</span>
+                <span class="chip">bukti-follow.png</span>
+            </div>
+
+            <!-- [ADN - IM-004] DetailRequestSOP (UI-11-02): checklist kesesuaian SOP -->
+            <div class="lbl">Pemeriksaan kesesuaian SOP</div>
+            <label class="check">
+                <input type="checkbox" class="cek-sop" checked>
+                Materi konten sesuai ketentuan
+            </label>
+            <label class="check">
+                <input type="checkbox" class="cek-sop" checked>
+                Syarat pengajuan terpenuhi (H-3 sebelum publikasi)
+            </label>
+            <label class="check">
+                <input type="checkbox" class="cek-sop" checked>
+                Bukti pemenuhan syarat lengkap dan jelas
+            </label>
+
+            <!-- [ADN - IM-007] CatatanKelengkapanMateri (UI-11-05): catatan kelengkapan -->
+            <div class="lbl">Catatan kelengkapan materi</div>
+            <textarea id="textareaCatatanKelengkapan" placeholder="Tulis catatan kelengkapan materi yang perlu diperbaiki pengaju..."></textarea>
+
+            <!-- [ADN - IM-006] riwayat audit log CMI (diisi admin.js lewat #auditLogList) -->
+            <div class="lbl">Riwayat CMI</div>
+            <ul class="box" id="auditLogList">
+                <li>Belum ada aktivitas CMI pada permohonan ini.</li>
+            </ul>
+
+            <div class="actions">
+                <a class="btn" href="dashboard-cmi.html">Kembali</a>
+                <div class="grp">
+                    <button class="btn" type="button" id="btnCatatKelengkapan">Catat Kelengkapan</button>
+                    <button class="btn primary" type="button" id="btnProsesRequest">Terima &amp; Proses Request</button>
+                </div>
+            </div>
         </div>
+
+        <!-- [ADN - IM-005] DialogKonfirmasiProses (UI-11-03): modal konfirmasi -->
+        <div class="modal-overlay" id="modalKonfirmasiProses" hidden>
+            <div class="modal-dialog">
+                <h2>Proses request ini?</h2>
+                <p>Status request akan berubah menjadi "Diproses" dan pengaju menerima notifikasi persetujuan.</p>
+                <div class="actions">
+                    <button class="btn" type="button" id="btnBatalProses">Batal</button>
+                    <button class="btn primary" type="button" id="btnYaProses">Ya, Proses</button>
+                </div>
+            </div>
+        </div>
+
         <!-- === AKHIR BLOK KODE: ADINDA === -->
     </div>
 
