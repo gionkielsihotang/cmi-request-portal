@@ -1,0 +1,9 @@
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
+assets/uploads/referensi/*
+!assets/uploads/referensi/.gitkeep
+assets/uploads/hasil_desain/*
+!assets/uploads/hasil_desain/.gitkeep

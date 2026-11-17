@@ -1,0 +1,396 @@
+/* ==========================================================================
+   UI COMPONENTS - PORTAL CMI BEM FILKOM UB
+   Mencakup: Cards, Forms, Alerts, Dropzone, Badges, Buttons, Summary & Timer
+   ========================================================================== */
+
+/* --- SURFACE CARD --- */
+.card {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+.card-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 18px;
+}
+
+/* --- STEP PILL BADGE (Langkah 1 dari 2) --- */
+.step-badge {
+    background-color: var(--blue-soft-bg);
+    color: var(--navy-primary);
+    border: 1px solid var(--blue-soft-border);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 20px;
+}
+
+/* --- ALERT BANNERS (Alt Flow 1, Alt Flow 2, & Notifikasi Sukses) --- */
+.alert {
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.alert-danger {
+    background-color: var(--danger-bg);
+    border: 1px solid var(--danger-border);
+    color: var(--danger-text);
+}
+
+.alert-success {
+    background-color: var(--success-bg);
+    border: 1px solid var(--success-border);
+    color: var(--success-text);
+}
+
+.alert-warning {
+    background-color: var(--warning-bg);
+    border: 1px solid var(--warning-border);
+    color: var(--warning-text);
+}
+
+/* --- FORM INPUTS & GRID --- */
+.form-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-bottom: 18px;
+}
+
+.form-group {
+    margin-bottom: 18px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 6px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px 14px;
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--text-main);
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-input);
+    border-radius: 8px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--navy-primary);
+    box-shadow: 0 0 0 3px rgba(22, 50, 115, 0.1);
+}
+
+.form-control::placeholder {
+    color: #94a3b8;
+}
+
+textarea.form-control {
+    resize: vertical;
+    min-height: 96px;
+}
+
+/* State Error Input (Alt Flow 1: Kolom Wajib Kosong) */
+.form-control.is-error,
+.error-border {
+    border-color: var(--danger-text) !important;
+    background-color: #fffafa;
+}
+
+.error-message {
+    display: block;
+    font-size: 12px;
+    color: var(--danger-text);
+    margin-top: 5px;
+}
+
+/* Radio Buttons (Feeds / Story) */
+.radio-group {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding-top: 8px;
+}
+
+.radio-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--text-main);
+    cursor: pointer;
+}
+
+.radio-item input[type="radio"] {
+    accent-color: var(--navy-primary);
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+/* --- DROPZONE UPLOAD BERKAS --- */
+.dropzone,
+.dropzone-area {
+    border: 1.5px dashed #93c5fd;
+    background-color: #f0f7ff;
+    border-radius: 8px;
+    padding: 28px 20px;
+    text-align: center;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.dropzone:hover,
+.dropzone-area:hover {
+    background-color: #e0effe;
+    border-color: var(--blue-accent);
+}
+
+/* State Error Dropzone (Alt Flow 2: Format/Ukuran Tidak Valid) */
+.dropzone.error,
+.dropzone-area.error {
+    border-color: var(--danger-text);
+    background-color: var(--danger-bg);
+    color: var(--danger-text);
+}
+
+.help-text {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 6px;
+}
+
+/* --- LIST KETENTUAN BERKAS (Card Kanan) --- */
+.spec-list {
+    list-style: none;
+    margin-bottom: 20px;
+}
+
+.spec-list li {
+    font-size: 13px;
+    color: var(--text-secondary);
+    padding: 10px 0;
+    border-bottom: 1px solid var(--bg-page);
+}
+
+.spec-list li:last-child {
+    border-bottom: none;
+}
+
+/* --- BUTTONS --- */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 11px 18px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.btn-block {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.btn-primary {
+    background-color: var(--navy-primary);
+    color: #ffffff;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background-color: var(--navy-hover);
+}
+
+.btn-secondary {
+    background-color: var(--bg-surface);
+    color: var(--text-main);
+    border-color: var(--border-input);
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background-color: var(--bg-muted);
+}
+
+.btn-danger {
+    background-color: var(--danger-text);
+    color: #ffffff;
+}
+
+.btn-danger:hover:not(:disabled) {
+    background-color: #b91c1c;
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* --- RINGKASAN DATA KEY-VALUE (Halaman Preview & Detail Pengajuan) --- */
+.summary-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.summary-row {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 12px;
+    align-items: baseline;
+    font-size: 13.5px;
+}
+
+.summary-label {
+    color: var(--text-muted);
+    font-weight: 400;
+}
+
+.summary-value {
+    color: var(--text-main);
+    font-weight: 600;
+}
+
+.summary-footer {
+    margin-top: 20px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border-color);
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+/* --- KOTAK TIMER COUNTDOWN (02:59) --- */
+.timer-box {
+    text-align: center;
+}
+
+.timer-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.countdown-display {
+    font-size: 40px;
+    font-weight: 800;
+    color: var(--navy-primary);
+    letter-spacing: 1px;
+    margin: 8px 0 2px;
+    font-variant-numeric: tabular-nums;
+}
+
+.timer-unit {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+}
+
+.timer-note {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+/* --- STATUS BADGES --- */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 6px;
+}
+
+.badge-neutral {
+    background-color: #f1f5f9;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+}
+
+.badge-warning,
+.badge-queue {
+    background-color: var(--warning-bg);
+    color: var(--warning-text);
+    border: 1px solid var(--warning-border);
+}
+
+.badge-process {
+    background-color: var(--blue-soft-bg);
+    color: var(--blue-accent);
+    border: 1px solid var(--blue-soft-border);
+}
+
+.badge-success {
+    background-color: var(--success-bg);
+    color: var(--success-text);
+    border: 1px solid var(--success-border);
+}
+
+.badge-danger {
+    background-color: var(--danger-bg);
+    color: var(--danger-text);
+    border: 1px solid var(--danger-border);
+}
+
+/* --- TABEL TRACKING STATUS (UC-02 & UC-10/11) --- */
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 13.5px;
+}
+
+.data-table th {
+    background-color: var(--bg-muted);
+    color: var(--text-secondary);
+    font-weight: 600;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.data-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-main);
+}
+
+.data-table tr:hover td {
+    background-color: #f8fafc;
+}
+
+@media (max-width: 640px) {
+
+    .form-grid-2,
+    .summary-row {
+        grid-template-columns: 1fr;
+    }
+}
