@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pilihan Pengajuan</title>
+  <link rel="stylesheet" href="../../assets/css/global.css">
+  <link rel="stylesheet" href="../../assets/css/components.css">
+  <!-- Gaya lokal sementara; hapus jika sudah tercakup global.css / components.css -->
+  <link rel="stylesheet" href="../../assets/css/uc02-sementara.css">
+</head>
+
+<body data-page="pilihan">
+  <nav>
+    <div class="brand">
+      <div class="logo">C</div>
+      <div><b>CMI BEM FILKOM UB</b><small>Portal Publikasi &amp; Riset</small></div>
+    </div>
+    <div class="menu">
+      <a href="#">Dashboard</a>
+      <a href="pilihan-pengajuan.html">Pengajuan Request</a>
+      <a class="active" href="status-pengajuan.html">Status Pengajuan</a>
+    </div>
+    <div class="right">
+      <span class="pill">Pengaju</span>
+      <a href="../../index.html">Keluar</a>
+    </div>
+  </nav>
+
+  <div class="wrap">
+    <div class="crumb"><a href="status-pengajuan.html">Beranda &rsaquo; Status Pengajuan</a> &rsaquo; Pilihan Pengajuan</div>
+    <h1>Pilih Jenis Pengajuan</h1>
+    <p class="sub">Pilih jenis pengajuan yang ingin kamu buat.</p>
+
+    <!-- UI-02-03 | [CLS - IM-003] PilihanJenisPengajuan -->
+    <div class="grid2">
+      <div class="card opsi">
+        <div class="top">
+          <div class="ic">C</div>
+          <span class="tag">Pengaju Internal</span>
+        </div>
+        <h2>Request Publikasi Internal</h2>
+        <p>Ajukan publikasi kegiatan kementerian atau divisi di lingkungan BEM FILKOM UB.</p>
+        <a class="btn block" id="btnPilihInternal" href="form-request.html">Pilih</a>
+      </div>
+
+      <div class="card opsi">
+        <div class="top">
+          <div class="ic">C</div>
+          <span class="tag">Pengaju Eksternal</span>
+        </div>
+        <h2>Media Partner</h2>
+        <p>Ajukan kerja sama publikasi untuk instansi di luar BEM FILKOM UB.</p>
+        <!-- Halaman Media Partner belum ada di struktur proyek, sementara belum diarahkan -->
+        <a class="btn block" id="btnPilihMediaPartner" href="#">Pilih</a>
+      </div>
+    </div>
+  </div>
+
+  <footer class="foot">&copy; 2026 Biro Center of Media and Information (CMI) &bull; BEM FILKOM Universitas Brawijaya.</footer>
+  <script src="../../assets/js/pengaju.js"></script>
+</body>
+
+</html>
+
