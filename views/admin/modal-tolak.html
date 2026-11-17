@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tolak Request – CMI BEM FILKOM UB</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#1b3a9e; --navy-dark:#16307f; --ink:#1c2757; --muted:#6b7599;
+    --bg:#eef2fb; --card:#fff; --line:#e6eaf5; --head:#f3f5fb;
+    --red:#d93025; --red-dark:#bd271d; --red-bg:#fff1f0;
+    --green:#1f7a4d; --green-bg:#e9f8ef; --green-line:#8fd3ae;
+    --font:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0}
+  html{height:100%}
+  body{min-height:100%;display:flex;flex-direction:column;background:var(--bg);color:var(--ink);font:14px/1.5 var(--font)}
+  a{color:inherit;text-decoration:none}
+  button{font:inherit;cursor:pointer}
+  :focus-visible{outline:2px solid var(--navy);outline-offset:2px}
+  h1:focus,h1:focus-visible{outline:none}
+  [hidden]{display:none!important}
+
+  /* ===== Navbar ===== */
+  nav{background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:16px;padding:0 28px;height:64px;position:sticky;top:0;z-index:5}
+  .brand{display:flex;align-items:center;gap:10px}
+  .logo{width:30px;height:30px;border-radius:8px;background:var(--navy);color:#fff;display:grid;place-items:center;font-weight:800;font-size:14px}
+  .brand b{display:block;font-size:12.5px;line-height:1.2}
+  .brand small{display:block;font-size:10px;color:var(--muted)}
+  .menu{display:flex;gap:28px;height:100%}
+  .menu a{display:flex;align-items:center;height:100%;font-size:13px;color:var(--muted);border-bottom:2px solid transparent;font-weight:500}
+  .menu a.active{color:var(--navy);font-weight:700;border-bottom-color:var(--navy)}
+  .right{display:flex;align-items:center;gap:18px;font-size:12px;color:var(--muted)}
+  .pill{background:#dfe7fb;color:var(--navy);font-weight:600;padding:6px 20px;border-radius:99px;font-size:12px}
+  .right a:hover{color:var(--navy)}
+
+  /* ===== Layout ===== */
+  main{flex:1;width:100%;max-width:1040px;margin:0 auto;padding:26px 28px 48px}
+  .crumb{font-size:11px;color:var(--muted)}
+  .crumb a:hover{color:var(--navy);text-decoration:underline}
+  .titlebar{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin:2px 0 20px}
+  h1{font-size:26px;line-height:1.2;font-weight:800}
+  .status-top{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:8px;padding-bottom:4px}
+  footer{padding:18px 28px;font-size:11px;color:var(--muted)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px}
+
+  /* ===== Badge ===== */
+  .badge{display:inline-block;font-size:10.5px;font-weight:700;padding:3px 11px;border-radius:99px;white-space:nowrap}
+  .s-rev{background:#dce8fe;color:#1d4fd8}
+  .s-rej{background:#fde0df;color:#c0281f}
+
+  /* ===== Banner sukses (UI-12-03) ===== */
+  .banner{display:flex;align-items:center;gap:8px;background:var(--green-bg);border:1.5px solid var(--green-line);color:var(--green);border-radius:9px;padding:11px 16px;font-size:12px;font-weight:700;margin-bottom:18px}
+
+  /* ===== Detail ===== */
+  .grid{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:20px;align-items:start}
+  .panel{padding:24px 26px}
+  .panel h2{font-size:14px;font-weight:700;margin-bottom:16px}
+  .row{display:grid;grid-template-columns:130px 1fr;gap:12px;padding:9px 0;font-size:12px;border-bottom:1px solid var(--line)}
+  .row:last-of-type{border-bottom:0}
+  .row dt{color:var(--muted)}
+  .row dd{font-weight:700;margin:0}
+  .sect{margin-top:20px;padding-top:18px;border-top:1px solid var(--line)}
+  .sect h3{font-size:12.5px;font-weight:700;margin-bottom:12px}
+  .file{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:10px;background:#fff}
+  .ficon{width:26px;height:26px;border-radius:6px;background:#e8edfa;flex:none}
+  .fname{font-size:12px;font-weight:700;display:block}
+  .fsize{font-size:10px;color:var(--muted);display:block}
+
+  .side{padding:20px}
+  .side h2{font-size:12px;font-weight:700;margin-bottom:12px}
+  .side .info{font-size:11px;color:var(--muted);margin-top:10px}
+  .btn{display:block;width:100%;padding:12px;border-radius:9px;font-weight:700;font-size:13px;margin-top:12px;border:1.5px solid transparent}
+  .btn.primary{background:var(--navy);color:#fff}
+  .btn.primary:hover{background:var(--navy-dark)}
+  .btn.danger{background:#fff;color:var(--red);border-color:var(--red)}
+  .btn.danger:hover{background:var(--red-bg)}
+
+  /* ===== Modal (UI-12-01, UI-12-02) ===== */
+  .overlay{position:fixed;inset:0;background:rgba(28,39,87,.55);display:grid;place-items:center;padding:20px;z-index:20}
+  .dialog{background:#fff;border-radius:14px;width:100%;max-width:440px;padding:22px 24px 24px;box-shadow:0 20px 50px rgba(20,30,70,.3)}
+  .dialog h2{font-size:15px;font-weight:800}
+  .dialog .desc{font-size:11.5px;color:var(--muted);margin-top:6px}
+  .dialog label{display:block;font-size:12px;font-weight:700;margin:14px 0 6px}
+  .dialog label span{color:var(--red)}
+  .dialog textarea{width:100%;min-height:96px;resize:vertical;border:1.5px solid #d4dcf2;border-radius:8px;padding:10px 12px;font:inherit;font-size:12.5px;color:var(--ink);background:#f6f8fe}
+  .dialog textarea::placeholder{color:#9aa3c0}
+  .dialog textarea:focus{outline:none;border-color:var(--navy);background:#fff}
+  .dialog textarea.err{border-color:var(--red);background:var(--red-bg)}
+  .errmsg{font-size:11px;font-weight:600;color:var(--red);margin-top:6px;min-height:17px}
+  .dactions{display:flex;gap:12px;margin-top:10px}
+  .dactions button{flex:1;padding:12px;border-radius:9px;font-weight:700;font-size:13px;border:1.5px solid transparent}
+  .btn-cancel{background:#fff;color:var(--ink);border-color:#d4dcf2!important}
+  .btn-cancel:hover{background:var(--head)}
+  .btn-send{background:var(--red);color:#fff}
+  .btn-send:hover{background:var(--red-dark)}
+
+  @media (max-width:860px){
+    nav{padding:10px 16px;height:auto;flex-wrap:wrap}
+    .menu{order:3;width:100%;height:40px;gap:20px}
+    main{padding:20px 16px 40px}
+    .grid{grid-template-columns:1fr}
+    .titlebar{flex-direction:column;align-items:flex-start}
+    .row{grid-template-columns:100px 1fr}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="brand">
+    <div class="logo">C</div>
+    <div><b>CMI BEM FILKOM UB</b><small>Portal Publikasi &amp; Riset</small></div>
+  </div>
+  <div class="menu">
+    <a href="#" data-dummy>Dashboard</a>
+    <a href="#" class="active" id="navDaftar">Daftar Permohonan</a>
+  </div>
+  <div class="right">
+    <span class="pill">CMI (Admin)</span>
+    <a href="#" data-dummy>Keluar</a>
+  </div>
+</nav>
+
+<main>
+  <div class="crumb">
+    <a href="#" class="to-daftar">Beranda</a> › <a href="#" class="to-daftar">Daftar Permohonan</a> › Detail Request
+  </div>
+  <div class="titlebar">
+    <h1 id="hDetail" tabindex="-1">Detail Request</h1>
+    <div class="status-top">Label status: <span id="topBadge" class="badge"></span></div>
+  </div>
+
+  <!-- UI-12-03 · DetailRequestDitolak (REV – IM-008): banner hijau -->
+  <div class="banner" id="banner" role="status" hidden>
+    <span aria-hidden="true">✓</span>
+    <span>Pengajuan berhasil ditolak. Notifikasi penolakan telah dikirim ke email pengaju.</span>
+  </div>
+
+  <div class="grid">
+    <div class="card panel">
+      <h2>Rincian Isi Form</h2>
+      <dl>
+        <div class="row"><dt>No. Pengajuan</dt><dd id="dNo"></dd></div>
+        <div class="row"><dt>Jenis publikasi</dt><dd id="dJenis"></dd></div>
+        <div class="row"><dt>Tanggal publikasi</dt><dd id="dTgl"></dd></div>
+        <div class="row"><dt>Pengaju</dt><dd id="dPengaju"></dd></div>
+        <div class="row"><dt>Redaksional</dt><dd id="dRedaksi"></dd></div>
+      </dl>
+      <div class="sect">
+        <h3>Berkas Lampiran</h3>
+        <div id="dFiles"></div>
+      </div>
+    </div>
+
+    <aside class="card side">
+      <h2>Label Status</h2>
+      <span id="sideBadge" class="badge"></span>
+      <p class="info" id="sideInfo"></p>
+      <div id="actions">
+        <button class="btn primary" id="btnTerima" type="button">Terima</button>
+        <button class="btn danger" id="btnTolak" type="button">Tolak</button>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<footer>© 2026 Biro Center of Media and Information (CMI) • BEM FILKOM Universitas Brawijaya.</footer>
+
+<!-- UI-12-01 · ModalAlasanPenolakan (REV – IM-006) + UI-12-02 · ModalPenolakanError (REV – IM-007) -->
+<div class="overlay" id="modal" hidden>
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="mTitle" aria-describedby="mDesc">
+    <h2 id="mTitle">Tolak Request</h2>
+    <p class="desc" id="mDesc"></p>
+    <label for="alasan">Alasan penolakan <span aria-hidden="true">*</span></label>
+    <textarea id="alasan" placeholder="Tulis alasan penolakan di sini" aria-required="true" aria-describedby="alasanErr"></textarea>
+    <div class="errmsg" id="alasanErr" role="alert"></div>
+    <div class="dactions">
+      <button class="btn-cancel" id="btnCancel" type="button">Cancel</button>
+      <button class="btn-send" id="btnSend" type="button">Send</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===== Konfigurasi halaman lain (kode terpisah) ===== */
+const HALAMAN_DAFTAR = 'daftar-permohonan.html';   // UI-10-01
+const HALAMAN_TERIMA = 'detail-review.html';   // UC-11 / SD-11
+
+/* ===== Data (entitas Pengajuan + BerkasLampiran) ===== */
+const requests = [
+  { id:'INT-001', jenis:'Feeds', tgl:'25/10/2026', pengaju:'Internal Resource Empowerment', status:'Ditinjau',
+    redaksi:'Pendaftaran Open Recruitment dibuka sampai 30 Oktober 2026.',
+    files:[{n:'referensi-desain.png',s:'2,4 MB'},{n:'materi-kegiatan.pdf',s:'1,1 MB'}] },
+  { id:'INT-002', jenis:'Story', tgl:'22/10/2026', pengaju:'PSDM', status:'Diproses',
+    redaksi:'Pengumuman jadwal wawancara anggota baru.',
+    files:[{n:'jadwal-wawancara.pdf',s:'0,8 MB'}] },
+  { id:'INT-003', jenis:'Feeds', tgl:'20/10/2026', pengaju:'Kemenristek', status:'Ditolak',
+    redaksi:'Publikasi lomba karya tulis tingkat fakultas.',
+    files:[{n:'poster-lomba.png',s:'3,2 MB'}] },
+  { id:'INT-004', jenis:'Feeds', tgl:'30/10/2026', pengaju:'Kominfo', status:'Ditinjau',
+    redaksi:'Ucapan Hari Sumpah Pemuda dari BEM FILKOM.',
+    files:[{n:'draft-caption.pdf',s:'0,3 MB'},{n:'logo-kominfo.png',s:'0,6 MB'}] },
+  { id:'INT-005', jenis:'Story', tgl:'18/10/2026', pengaju:'Kesma', status:'Selesai',
+    redaksi:'Info pembagian beasiswa semester genap.',
+    files:[{n:'lampiran-beasiswa.pdf',s:'1,7 MB'}] }
+];
+const BADGE = { 'Ditinjau':'s-rev', 'Ditolak':'s-rej', 'Diproses':'s-rev', 'Selesai':'s-rev', 'Menunggu Peninjauan':'s-rev' };
+const $ = id => document.getElementById(id);
+
+/* id dibawa dari halaman detail lewat ?id=INT-001 (default INT-001) */
+const idParam = new URLSearchParams(location.search).get('id') || 'INT-001';
+const req = requests.find(r => r.id === idParam) || requests[0];
+let lastFocus = null;
+
+function setBadge(el, status){ el.textContent = status; el.className = 'badge ' + (BADGE[status] || 's-rev'); }
+
+/* ===== Render detail (UI-12-03 saat status "Ditolak") ===== */
+function render(){
+  $('hDetail').textContent = 'Detail Request ' + req.id;
+  document.title = 'Tolak Request ' + req.id + ' – CMI BEM FILKOM UB';
+  $('dNo').textContent = req.id;
+  $('dJenis').textContent = req.jenis;
+  $('dTgl').textContent = req.tgl;
+  $('dPengaju').textContent = req.pengaju;
+  $('dRedaksi').textContent = req.redaksi;
+  setBadge($('topBadge'), req.status);
+  setBadge($('sideBadge'), req.status);
+
+  const files = $('dFiles'); files.textContent = '';
+  req.files.forEach(f => {
+    const d = document.createElement('div'); d.className = 'file';
+    d.innerHTML = '<span class="ficon"></span><span><span class="fname"></span><span class="fsize"></span></span>';
+    d.querySelector('.fname').textContent = f.n;
+    d.querySelector('.fsize').textContent = f.s;
+    files.appendChild(d);
+  });
+
+  const ditinjau = req.status === 'Ditinjau', ditolak = req.status === 'Ditolak';
+  $('actions').hidden = !ditinjau;
+  $('banner').hidden = !(ditolak && req.barusDitolak);
+  $('sideInfo').textContent =
+    ditinjau ? 'Request sedang ditinjau. Pilih Terima atau Tolak.' :
+    ditolak  ? 'Alasan penolakan telah dikirim ke email pengaju.' :
+               'Request berstatus "' + req.status + '". Terima dan Tolak hanya tersedia saat status "Ditinjau".';
+}
+
+/* ===== Modal alasan penolakan ===== */
+function clearError(){
+  $('alasan').classList.remove('err');
+  $('alasan').removeAttribute('aria-invalid');
+  $('alasanErr').textContent = '';
+}
+function showError(){                                   // UI-12-02: kolom alasan kosong
+  $('alasan').classList.add('err');
+  $('alasan').setAttribute('aria-invalid', 'true');
+  $('alasanErr').textContent = '! Alasan penolakan wajib diisi';
+  $('alasan').focus();
+}
+function openModal(){                                   // UI-12-01
+  lastFocus = document.activeElement;
+  $('mDesc').textContent = 'Tuliskan alasan penolakan request ' + req.id + '. Alasan akan dikirim ke pengaju melalui email.';
+  $('alasan').value = ''; clearError();
+  $('modal').hidden = false;
+  $('alasan').focus();
+}
+function closeModal(){
+  $('modal').hidden = true; clearError();
+  if (lastFocus && !lastFocus.hidden) lastFocus.focus();
+}
+
+$('btnTolak').addEventListener('click', openModal);
+$('btnCancel').addEventListener('click', closeModal);
+$('alasan').addEventListener('input', clearError);
+$('modal').addEventListener('mousedown', e => { if (e.target === $('modal')) closeModal(); });
+document.addEventListener('keydown', e => {
+  if ($('modal').hidden) return;
+  if (e.key === 'Escape') closeModal();
+  if (e.key === 'Tab'){                                 // fokus tetap di dalam modal
+    const f = [...$('modal').querySelectorAll('textarea,button')];
+    const first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+  }
+});
+
+/* ===== Send: validasi alasan → status "Ditolak" (SD-12 pesan 7–14) ===== */
+$('btnSend').addEventListener('click', () => {
+  const alasan = $('alasan').value.trim();
+  if (!alasan){ showError(); return; }                  // alt: alasan kosong → UI-12-02
+  req.status = 'Ditolak';                               // updateStatus(idPengajuan, "Ditolak", alasan)
+  req.alasan = alasan;
+  req.barusDitolak = true;
+  // TODO backend: kirim email penolakan (alasan) ke email pengaju
+  $('modal').hidden = true; lastFocus = null;
+  render();
+  $('hDetail').focus({preventScroll:true});
+  window.scrollTo(0,0);
+});
+
+/* ===== Terima & navigasi ===== */
+$('btnTerima').addEventListener('click', () => { location.href = HALAMAN_TERIMA + '?id=' + encodeURIComponent(req.id); });
+document.querySelectorAll('.to-daftar').forEach(a => a.setAttribute('href', HALAMAN_DAFTAR + '#daftar'));
+$('navDaftar').setAttribute('href', HALAMAN_DAFTAR + '#daftar');
+document.querySelectorAll('[data-dummy]').forEach(a => a.addEventListener('click', e => e.preventDefault()));
+
+/* ===== Init: datang dari tombol Tolak → modal langsung terbuka (UC-12 langkah 2–3) ===== */
+render();
+if (req.status === 'Ditinjau') openModal();
+</script>
+</body>
+</html>
