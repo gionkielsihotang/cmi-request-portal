@@ -76,17 +76,16 @@ body {
 }
 
 .nav-brand::before {
-    content: "C";
+    content: "";
     display: inline-flex;
     align-items: center;
     justify-content: center;
     width: 34px;
     height: 34px;
-    background-color: var(--navy-primary);
-    color: #ffffff;
+    background-image: url('../img/logo cmi.jpeg');
+    background-size: cover;
+    background-position: center;
     border-radius: 8px;
-    font-weight: 800;
-    font-size: 16px;
 }
 
 .nav-brand small {
