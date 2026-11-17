@@ -2,7 +2,7 @@
 -- SUBBAB 4.1 DATA DEFINITION LANGUAGE (DDL)
 -- Kode Tugas : DDL-TAB-02
 -- Format     : [CF] CREATE TABLE BERKAS LAMPIRAN (Validasi ✓)
--- Penyusun   : CALLYSTA FREDELINA (255150407111080)
+-- Penyusun   : Callysta Fredelina (255150407111080)
 -- ============================================================================
 
 CREATE TABLE BERKAS_LAMPIRAN(
