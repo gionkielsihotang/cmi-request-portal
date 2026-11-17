@@ -11,7 +11,7 @@ function initStatusPengajuan() {
 
     if (btnBuat) {
         btnBuat.addEventListener('click', () => {
-            window.location.href = 'form-request.html';
+            window.location.href = 'pilihan-pengajuan.html';
         });
     }
 
