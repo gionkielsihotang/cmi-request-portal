@@ -5,13 +5,13 @@ const VERIFIKASI_API_URL = '../../api/verifikasi_api.php';
 // 1. UI-02-01 & UI-02-02: Halaman Status Pengajuan & Empty State
 // ----------------------------------------------------------------------------
 function initStatusPengajuan() {
-    const tabelBody = document.getElementById('tabelRiwayatBody');
+    const tabelBody = document.getElementById('tabelRiwayatBody') || document.getElementById('daftarPengajuan');
     const emptyState = document.getElementById('emptyState');
     const btnBuat = document.getElementById('btnBuatPengajuan');
 
     if (btnBuat) {
         btnBuat.addEventListener('click', () => {
-            window.location.href = 'pilihan-pengajuan.html';
+            window.location.href = 'form-request.html';
         });
     }
 
