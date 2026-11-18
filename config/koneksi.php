@@ -5,6 +5,8 @@
  * Mendukung koneksi MySQLi ($koneksi) dan PDO ($GLOBALS['pdo'])
  */
 
+date_default_timezone_set('Asia/Jakarta');
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -75,6 +77,27 @@ try {
 
     if ($koneksi) {
         mysqli_set_charset($koneksi, 'utf8mb4');
+        // Pastikan kolom penjadwalan & jenis konten tersedia di tabel PENGAJUAN
+        $cols = [
+            'targetJam' => "ALTER TABLE `PENGAJUAN` ADD COLUMN `targetJam` VARCHAR(10) NULL DEFAULT '09:00' AFTER `targetTanggal`",
+            'tanggal_publikasi' => "ALTER TABLE `PENGAJUAN` ADD COLUMN `tanggal_publikasi` DATE NULL AFTER `tanggalPengajuan`",
+            'jam_publikasi' => "ALTER TABLE `PENGAJUAN` ADD COLUMN `jam_publikasi` VARCHAR(10) NULL DEFAULT '09:00' AFTER `tanggal_publikasi`",
+            'jenis_konten' => "ALTER TABLE `PENGAJUAN` ADD COLUMN `jenis_konten` VARCHAR(50) DEFAULT 'Feeds' AFTER `jam_publikasi`",
+            'status_pengajuan' => "ALTER TABLE `PENGAJUAN` ADD COLUMN `status_pengajuan` VARCHAR(40) NULL AFTER `statusPengajuan`"
+        ];
+        foreach ($cols as $colName => $alterSql) {
+            $cek = @mysqli_query($koneksi, "SHOW COLUMNS FROM `PENGAJUAN` LIKE '{$colName}'");
+            if ($cek && mysqli_num_rows($cek) === 0) {
+                @mysqli_query($koneksi, $alterSql);
+            }
+        }
+        // Sinkronisasi data antar kolom alias jika ada yang masih kosong
+        @mysqli_query($koneksi, "UPDATE `PENGAJUAN` SET `tanggal_publikasi` = `targetTanggal` WHERE `tanggal_publikasi` IS NULL AND `targetTanggal` IS NOT NULL");
+        @mysqli_query($koneksi, "UPDATE `PENGAJUAN` SET `targetTanggal` = `tanggal_publikasi` WHERE `targetTanggal` IS NULL AND `tanggal_publikasi` IS NOT NULL");
+        @mysqli_query($koneksi, "UPDATE `PENGAJUAN` SET `jam_publikasi` = `targetJam` WHERE `jam_publikasi` IS NULL AND `targetJam` IS NOT NULL");
+        @mysqli_query($koneksi, "UPDATE `PENGAJUAN` SET `targetJam` = `jam_publikasi` WHERE `targetJam` IS NULL AND `jam_publikasi` IS NOT NULL");
+        @mysqli_query($koneksi, "UPDATE `PENGAJUAN` SET `jenis_konten` = `jenisMedia` WHERE `jenis_konten` IS NULL AND `jenisMedia` IS NOT NULL");
+        @mysqli_query($koneksi, "UPDATE `PENGAJUAN` SET `status_pengajuan` = `statusPengajuan` WHERE `status_pengajuan` IS NULL AND `statusPengajuan` IS NOT NULL");
     }
 
     // Hubungkan juga via PDO untuk backward compatibility dengan class di entities/

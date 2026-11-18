@@ -44,7 +44,7 @@ if ($koneksi) {
         </div>
         <div class="menu">
             <a class="active" href="status-pengajuan.php">Status Pengajuan</a>
-            <a href="pilihan-pengajuan.php">Buat Pengajuan</a>
+            <a href="kalender-jadwal.php">Ajukan Request</a>
         </div>
         <div class="right">
             <span class="pill">Pengaju: <?= htmlspecialchars($_SESSION['user']['nama'] ?? 'Pengaju Internal') ?></span>
@@ -54,8 +54,13 @@ if ($koneksi) {
 
     <div class="wrap">
         <div class="crumb"><a href="status-pengajuan.php">Beranda</a> &rsaquo; Status Pengajuan</div>
-        <h1>Status Pengajuan</h1>
-        <p class="sub">Daftar riwayat permohonan publikasi beserta label status terbaru dari CMI.</p>
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:16px; flex-wrap:wrap; gap:12px;">
+            <div>
+                <h1 style="margin-bottom:4px;">Status Pengajuan</h1>
+                <p class="sub">Daftar riwayat permohonan publikasi beserta label status terbaru dari CMI.</p>
+            </div>
+            <a href="kalender-jadwal.php" class="btn primary" style="text-decoration:none; display:inline-block; padding:10px 18px;">+ Ajukan Request Baru</a>
+        </div>
 
         <?php if (!empty($daftarPengajuan)): ?>
             <!-- UI-02-01 | [CLS - IM-001] HalamanStatusPengajuan (daftar tersedia) -->
@@ -65,7 +70,7 @@ if ($koneksi) {
                         <tr>
                             <th>No. Pengajuan</th>
                             <th>Judul Publikasi</th>
-                            <th>Tanggal Pengajuan</th>
+                            <th>Jadwal Publikasi</th>
                             <th>Label Status</th>
                             <th>Aksi</th>
                         </tr>
@@ -96,7 +101,10 @@ if ($koneksi) {
                             <tr style="cursor:pointer;" onclick="window.location.href='<?= $targetUrl ?>'">
                                 <td><strong><?= htmlspecialchars($row['idPengajuan']) ?></strong></td>
                                 <td><?= htmlspecialchars($row['judulRequest']) ?></td>
-                                <td><?= htmlspecialchars($row['tanggalPengajuan']) ?></td>
+                                <td>
+                                    <?= htmlspecialchars($row['targetTanggal'] ?? $row['tanggalPengajuan']) ?>
+                                    <?= !empty($row['targetJam']) ? '<br><small style="color:#64748b; font-weight:600;">Pukul ' . htmlspecialchars($row['targetJam']) . ' WIB</small>' : '' ?>
+                                </td>
                                 <td><span class="badge <?= $badgeClass ?>"><?= htmlspecialchars($status) ?></span></td>
                                 <td>
                                     <a href="<?= $targetUrl ?>" class="btn-sm" style="text-decoration:none;"
@@ -120,7 +128,7 @@ if ($koneksi) {
                 </div>
                 <h2>Belum ada pengajuan</h2>
                 <p>Kamu belum mengajukan request apa pun. Mulai dengan membuat pengajuan baru.</p>
-                <a href="pilihan-pengajuan.php" class="btn-primary" style="text-decoration:none;">Buat Pengajuan</a>
+                <a href="kalender-jadwal.php" class="btn-primary" style="text-decoration:none;">Buat Pengajuan</a>
             </div>
         <?php endif; ?>
     </div>

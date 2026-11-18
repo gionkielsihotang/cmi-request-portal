@@ -22,7 +22,7 @@ require_once __DIR__ . '/../../config/koneksi.php';
     </div>
     <div class="menu">
       <a href="status-pengajuan.php">Status Pengajuan</a>
-      <a class="active" href="pilihan-pengajuan.php">Buat Pengajuan</a>
+      <a class="active" href="kalender-jadwal.php">Ajukan Request</a>
     </div>
     <div class="right">
       <span class="pill">Pengaju: <?= htmlspecialchars($_SESSION['user']['nama'] ?? 'Pengaju Internal') ?></span>
@@ -48,7 +48,7 @@ require_once __DIR__ . '/../../config/koneksi.php';
         <h2>Request Publikasi Internal</h2>
         <p>Ajukan permohonan publikasi kegiatan atau materi promosi untuk kementerian/biro di lingkungan BEM FILKOM UB.
         </p>
-        <a class="btn block btn-primary" id="btnPilihInternal" href="form-request.php">Pilih Internal &rarr;</a>
+        <a class="btn block btn-primary" id="btnPilihInternal" href="kalender-jadwal.php">Pilih Jadwal &amp; Ajukan &rarr;</a>
       </div>
 
       <!-- Pilihan 2: Media Partner (Eksternal) -->

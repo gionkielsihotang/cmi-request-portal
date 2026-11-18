@@ -244,9 +244,11 @@ $instansi = $pengajuan['asalKementerian'] ?: ($pengajuan['namaPengaju'] ?: 'Peng
                     <div class="val"><?= htmlspecialchars($instansi) ?></div>
                 </div>
                 <div>
-                    <div class="lbl">Tanggal Publikasi Target</div>
+                    <div class="lbl">Jadwal Publikasi Target</div>
                     <div class="val">
-                        <?= htmlspecialchars($pengajuan['targetTanggal'] ?? $pengajuan['tanggalPengajuan']) ?></div>
+                        <?= htmlspecialchars($pengajuan['targetTanggal'] ?? $pengajuan['tanggalPengajuan']) ?>
+                        <?= !empty($pengajuan['targetJam']) ? ' • Pukul ' . htmlspecialchars($pengajuan['targetJam']) . ' WIB' : '' ?>
+                    </div>
                 </div>
                 <div>
                     <div class="lbl">Jenis Postingan</div>

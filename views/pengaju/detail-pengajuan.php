@@ -101,7 +101,7 @@ if (stripos($status, 'verifikasi') !== false) {
         </div>
         <div class="menu">
             <a href="status-pengajuan.php">Status Pengajuan</a>
-            <a href="pilihan-pengajuan.php">Buat Pengajuan</a>
+            <a href="kalender-jadwal.php">Ajukan Request</a>
         </div>
         <div class="right">
             <span class="pill">Pengaju: <?= htmlspecialchars($_SESSION['user']['nama'] ?? 'Pengaju Internal') ?></span>
@@ -145,9 +145,11 @@ if (stripos($status, 'verifikasi') !== false) {
                     <div class="val" id="detailIdPengajuan"><?= htmlspecialchars($pengajuan['idPengajuan']) ?></div>
                 </div>
                 <div class="meta-item">
-                    <div class="lbl">Target Tanggal Publikasi</div>
+                    <div class="lbl">Jadwal Publikasi Target</div>
                     <div class="val" id="detailTanggal">
-                        <?= htmlspecialchars($pengajuan['targetTanggal'] ?? $pengajuan['tanggalPengajuan']) ?></div>
+                        <?= htmlspecialchars($pengajuan['targetTanggal'] ?? $pengajuan['tanggalPengajuan']) ?>
+                        <?= !empty($pengajuan['targetJam']) ? ' • Pukul ' . htmlspecialchars($pengajuan['targetJam']) . ' WIB' : '' ?>
+                    </div>
                 </div>
                 <div class="meta-item">
                     <div class="lbl">Jenis Media</div>

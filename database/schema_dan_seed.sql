@@ -61,10 +61,15 @@ CREATE TABLE `PENGAJUAN` (
     `kementerianId` VARCHAR(20) NULL,
     `judulRequest` VARCHAR(200) NOT NULL,
     `tanggalPengajuan` DATE NOT NULL,
+    `tanggal_publikasi` DATE NULL,
+    `jam_publikasi` VARCHAR(10) NULL DEFAULT '09:00',
+    `jenis_konten` VARCHAR(50) DEFAULT 'Feeds',
     `targetTanggal` DATE NULL,
-    `jenisMedia` VARCHAR(50) DEFAULT 'Instagram Feeds',
+    `targetJam` VARCHAR(10) NULL DEFAULT '09:00',
+    `jenisMedia` VARCHAR(50) DEFAULT 'Feeds',
     `detailKonten` TEXT NOT NULL,
     `statusPengajuan` VARCHAR(40) NOT NULL DEFAULT 'Dalam Antrian',
+    `status_pengajuan` VARCHAR(40) NOT NULL DEFAULT 'Dalam Antrian',
     `catatanKelengkapan` TEXT NULL,
     `alasanPenolakan` TEXT NULL,
     `sisaWaktuVerifikasi` INT NOT NULL DEFAULT 3600,
@@ -172,12 +177,12 @@ INSERT INTO `CMI` (`idCMI`, `namaAdmin`, `accountAdmin`) VALUES
 ('CMI-002', 'Callysta Desainer CMI', 'callysta_cmi@filkom.ub.ac.id');
 
 -- 3. Data Pengajuan Publikasi Berbagai Status
-INSERT INTO `PENGAJUAN` (`idPengajuan`, `idPengaju`, `kementerianId`, `judulRequest`, `tanggalPengajuan`, `targetTanggal`, `jenisMedia`, `detailKonten`, `statusPengajuan`, `catatanKelengkapan`, `alasanPenolakan`, `sisaWaktuVerifikasi`) VALUES
-('REQ-001', 'PGJ-001', 'KEM-01', 'Open Recruitment Staff Ahli BEM FILKOM UB 2026', '2026-11-20', '2026-11-25', 'Instagram Feeds', 'Open Recruitment Staff Ahli BEM FILKOM UB 2026 telah resmi dibuka. Pendaftaran berlangsung pada 25–30 November 2026 melalui tautan resmi BEM FILKOM UB.', 'Menunggu Peninjauan', NULL, NULL, 3600),
-('REQ-002', 'PGJ-001', 'KEM-01', 'Publikasi Webinar Nasional FILKOM 2026', '2026-11-18', '2026-11-22', 'Instagram Story', 'Webinar Nasional Masa Depan AI dan Rekayasa Perangkat Lunak bersama pembicara industri.', 'Menunggu Verifikasi', 'Materi konten dan bukti H-3 sudah lengkap dan terverifikasi.', NULL, 3550),
-('REQ-003', 'PGJ-001', 'KEM-01', 'Workshop Desain Grafis & Multimedia CMI', '2026-11-15', '2026-11-20', 'Reels', 'Pelatihan pembuatan konten visual kreatif dan video interaktif bagi pengurus himpunan.', 'Diproses', 'Materi sesuai SOP, sedang dalam pengerjaan tim desain CMI.', NULL, 3600),
-('REQ-004', 'PGJ-001', 'KEM-01', 'Lomba Karya Tulis Mahasiswa Nasional', '2026-11-14', '2026-11-16', 'Instagram Feeds', 'Publikasi kompetisi karya ilmiah tingkat nasional mahasiswa se-Indonesia.', 'Ditolak', NULL, 'Format berkas acuan tidak jelas dan jadwal publikasi melanggar batas waktu H-3 SOP CMI.', 3600),
-('REQ-005', 'PGJ-001', 'KEM-01', 'Sosialisasi Beasiswa Filkom 2026', '2026-11-10', '2026-11-12', 'Instagram Story', 'Pengumuman pembukaan beasiswa prestasi dan bantuan pendidikan semester genap.', 'Fix', 'Disetujui oleh kementerian pengaju.', NULL, 0);
+INSERT INTO `PENGAJUAN` (`idPengajuan`, `idPengaju`, `kementerianId`, `judulRequest`, `tanggalPengajuan`, `tanggal_publikasi`, `jam_publikasi`, `jenis_konten`, `targetTanggal`, `targetJam`, `jenisMedia`, `detailKonten`, `statusPengajuan`, `status_pengajuan`, `catatanKelengkapan`, `alasanPenolakan`, `sisaWaktuVerifikasi`) VALUES
+('REQ-001', 'PGJ-001', 'KEM-01', 'Open Recruitment Staff Ahli BEM FILKOM UB 2026', '2026-11-20', '2026-11-25', '09:00', 'Feeds', '2026-11-25', '09:00', 'Feeds', 'Open Recruitment Staff Ahli BEM FILKOM UB 2026 telah resmi dibuka. Pendaftaran berlangsung pada 25–30 November 2026 melalui tautan resmi BEM FILKOM UB.', 'Menunggu Peninjauan', 'Menunggu Peninjauan', NULL, NULL, 3600),
+('REQ-002', 'PGJ-001', 'KEM-01', 'Publikasi Webinar Nasional FILKOM 2026', '2026-11-18', '2026-11-21', '13:00', 'Story', '2026-11-21', '13:00', 'Story', 'Webinar Nasional Masa Depan AI dan Rekayasa Perangkat Lunak bersama pembicara industri.', 'Menunggu Verifikasi', 'Menunggu Verifikasi', 'Materi konten dan bukti H-3 sudah lengkap dan terverifikasi.', NULL, 3550),
+('REQ-003', 'PGJ-001', 'KEM-01', 'Workshop Desain Grafis & Multimedia CMI', '2026-11-15', '2026-11-26', '15:00', 'Reels', '2026-11-26', '15:00', 'Reels', 'Pelatihan pembuatan konten visual kreatif dan video interaktif bagi pengurus himpunan.', 'Diproses', 'Diproses', 'Materi sesuai SOP, sedang dalam pengerjaan tim desain CMI.', NULL, 3600),
+('REQ-004', 'PGJ-001', 'KEM-01', 'Lomba Karya Tulis Mahasiswa Nasional', '2026-11-14', '2026-11-16', '19:00', 'Feeds', '2026-11-16', '19:00', 'Feeds', 'Publikasi kompetisi karya ilmiah tingkat nasional mahasiswa se-Indonesia.', 'Ditolak', 'Ditolak', NULL, 'Format berkas acuan tidak jelas dan jadwal publikasi melanggar batas waktu H-3 SOP CMI.', 3600),
+('REQ-005', 'PGJ-001', 'KEM-01', 'Sosialisasi Beasiswa Filkom 2026', '2026-11-10', '2026-11-28', '09:00', 'Story', '2026-11-28', '09:00', 'Story', 'Pengumuman pembukaan beasiswa prestasi dan bantuan pendidikan semester genap.', 'Fix', 'Fix', 'Disetujui oleh kementerian pengaju.', NULL, 0);
 
 -- 4. Data Berkas Lampiran Referensi & Hasil Desain
 INSERT INTO `BERKAS_LAMPIRAN` (`idBerkas`, `idPengajuan`, `namaBerkas`, `formatBerkas`, `ukuranBerkas`, `kategoriBerkas`, `pathPenyimpanan`) VALUES

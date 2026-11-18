@@ -76,9 +76,12 @@ function initFormRequestInternal() {
             const judulVal = inputJudul ? inputJudul.value.trim() : '';
             const kementerianVal = inputKementerian ? inputKementerian.value.trim() : '';
             const redaksionalVal = inputRedaksional ? inputRedaksional.value.trim() : '';
-            const jenisChecked = form.querySelector('input[name="jenisPublikasi"]:checked');
-            const jenisVal = jenisChecked ? jenisChecked.value : 'Instagram Feeds';
-            const tanggalVal = inputTanggal ? inputTanggal.value.trim() : '-';
+            const jenisChecked = form.querySelector('input[name="jenis_konten"]:checked') || form.querySelector('input[name="jenisPublikasi"]:checked');
+            const jenisVal = jenisChecked ? jenisChecked.value : 'Feeds';
+            const inputJam = document.getElementById('jam_publikasi') || document.getElementById('jamPublikasi');
+            const jamVal = inputJam ? inputJam.value.trim() : '';
+            const inputTgl = document.getElementById('tanggal_publikasi') || document.getElementById('tanggalPublikasi') || inputTanggal;
+            const tanggalVal = inputTgl ? inputTgl.value.trim() : '-';
             const fileObj = inputBerkas && inputBerkas.files[0];
 
             let hasEmpty = false;
@@ -117,7 +120,7 @@ function initFormRequestInternal() {
             if (elJudul) elJudul.textContent = judulVal;
             if (elKem) elKem.textContent = namaKementerian;
             if (elJenis) elJenis.textContent = jenisVal;
-            if (elTgl) elTgl.textContent = tanggalVal;
+            if (elTgl) elTgl.textContent = tanggalVal + (jamVal ? ' • Pukul ' + jamVal + ' WIB' : '');
             if (elRedaksi) elRedaksi.textContent = redaksionalVal;
             if (elBerkas) elBerkas.textContent = fileObj ? fileObj.name : 'Tidak ada lampiran';
 

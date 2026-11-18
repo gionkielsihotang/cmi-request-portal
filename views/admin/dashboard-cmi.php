@@ -99,7 +99,10 @@ if ($koneksi) {
                                     <small style="color:#64748b;"><?= htmlspecialchars($row['judulRequest']) ?></small>
                                 </td>
                                 <td><?= htmlspecialchars($row['jenisMedia'] ?? 'Instagram Feeds') ?></td>
-                                <td><?= htmlspecialchars($row['targetTanggal'] ?? $row['tanggalPengajuan']) ?></td>
+                                <td>
+                                    <?= htmlspecialchars($row['targetTanggal'] ?? $row['tanggalPengajuan']) ?>
+                                    <?= !empty($row['targetJam']) ? '<br><small style="color:#64748b; font-weight:600;">' . htmlspecialchars($row['targetJam']) . ' WIB</small>' : '' ?>
+                                </td>
                                 <td><span class="badge <?= $badgeClass ?>"><?= htmlspecialchars($status) ?></span></td>
                                 <td>
                                     <a href="detail-review.php?id=<?= urlencode($row['idPengajuan']) ?>"

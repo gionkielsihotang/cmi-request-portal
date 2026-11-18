@@ -11,8 +11,14 @@ class Pengajuan
     public string $idPengaju = '';
     public string $judulRequest = '';
     public string $tanggalPengajuan = '';
+    public ?string $targetTanggal = null;
+    public ?string $targetJam = '09:00';
+    public ?string $tanggal_publikasi = null;
+    public ?string $jam_publikasi = '09:00';
+    public ?string $jenis_konten = 'Feeds';
     public string $detailKonten = '';
     public string $statusPengajuan = 'Dalam Antrian';
+    public ?string $status_pengajuan = 'Dalam Antrian';
     public ?string $catatanKelengkapan = null;
     public ?string $alasanPenolakan = null;
     public int $sisaWaktuVerifikasi = 3600;
@@ -79,12 +85,23 @@ class Pengajuan
     {
         if (!$this->pdo)
             return false;
+        $tglPub = $data['tanggal_publikasi'] ?? ($data['targetTanggal'] ?? ($data['tanggalPengajuan'] ?? date('Y-m-d')));
+        $jamPub = $data['jam_publikasi'] ?? ($data['targetJam'] ?? '09:00');
+        $jnsKon = $data['jenis_konten'] ?? ($data['jenisMedia'] ?? 'Feeds');
+        $st = $data['status_pengajuan'] ?? ($data['statusPengajuan'] ?? 'Dalam Antrian');
+
         $sql = "INSERT INTO PENGAJUAN (
                     idPengajuan, idPengaju, judulRequest, tanggalPengajuan,
-                    detailKonten, statusPengajuan, catatanKelengkapan, alasanPenolakan, sisaWaktuVerifikasi
+                    tanggal_publikasi, jam_publikasi, jenis_konten,
+                    targetTanggal, targetJam, jenisMedia,
+                    detailKonten, statusPengajuan, status_pengajuan,
+                    catatanKelengkapan, alasanPenolakan, sisaWaktuVerifikasi
                 ) VALUES (
                     :idPengajuan, :idPengaju, :judulRequest, :tanggalPengajuan,
-                    :detailKonten, :statusPengajuan, :catatanKelengkapan, :alasanPenolakan, :sisaWaktuVerifikasi
+                    :tanggal_publikasi, :jam_publikasi, :jenis_konten,
+                    :targetTanggal, :targetJam, :jenisMedia,
+                    :detailKonten, :statusPengajuan, :status_pengajuan,
+                    :catatanKelengkapan, :alasanPenolakan, :sisaWaktuVerifikasi
                 )";
         $stmt = $this->pdo->prepare($sql);
         return $stmt->execute([
@@ -92,12 +109,81 @@ class Pengajuan
             ':idPengaju' => $data['idPengaju'] ?? 'PGJ-001',
             ':judulRequest' => $data['judulRequest'],
             ':tanggalPengajuan' => $data['tanggalPengajuan'] ?? date('Y-m-d'),
+            ':tanggal_publikasi' => $tglPub,
+            ':jam_publikasi' => $jamPub,
+            ':jenis_konten' => $jnsKon,
+            ':targetTanggal' => $tglPub,
+            ':targetJam' => $jamPub,
+            ':jenisMedia' => $jnsKon,
             ':detailKonten' => $data['detailKonten'],
-            ':statusPengajuan' => $data['statusPengajuan'] ?? 'Dalam Antrian',
+            ':statusPengajuan' => $st,
+            ':status_pengajuan' => $st,
             ':catatanKelengkapan' => $data['catatanKelengkapan'] ?? null,
             ':alasanPenolakan' => $data['alasanPenolakan'] ?? null,
             ':sisaWaktuVerifikasi' => $data['sisaWaktuVerifikasi'] ?? 3600
         ]);
+    }
+
+    public function cekKetersediaanSlot(string $targetTanggal, string $targetJam): bool
+    {
+        if (!$this->pdo)
+            return true;
+        $stmt = $this->pdo->prepare("
+            SELECT COUNT(*) FROM PENGAJUAN 
+            WHERE (tanggal_publikasi = :tanggal OR targetTanggal = :tanggal2) 
+              AND (jam_publikasi = :jam OR targetJam = :jam2) 
+              AND (status_pengajuan != 'Ditolak' AND statusPengajuan != 'Ditolak')
+        ");
+        $stmt->execute([
+            ':tanggal' => $targetTanggal,
+            ':tanggal2' => $targetTanggal,
+            ':jam' => $targetJam,
+            ':jam2' => $targetJam
+        ]);
+        return ((int) $stmt->fetchColumn()) === 0;
+    }
+
+    public function validasiJadwalSOP(string $tanggalPublikasi, string $jamPublikasi, string $jenisKonten): array
+    {
+        $errors = [];
+        $todayStr = date('Y-m-d');
+        $todayTs = strtotime($todayStr);
+        $targetTs = strtotime($tanggalPublikasi);
+
+        if ($targetTs === false) {
+            $errors[] = 'Format tanggal publikasi tidak valid.';
+            return ['valid' => false, 'errors' => $errors];
+        }
+
+        $diffDays = (int) round(($targetTs - $todayTs) / 86400);
+        $dayOfWeek = (int) date('w', $targetTs);
+
+        // a) Tolak jika hari Minggu
+        if ($dayOfWeek === 0) {
+            $errors[] = 'Hari Minggu merupakan hari libur operasional CMI. Pengajuan tidak dapat dijadwalkan pada hari Minggu.';
+        }
+
+        // b) Tolak jika Feeds/Reels < 7 hari, atau Story < 3 hari
+        if (in_array($jenisKonten, ['Feeds', 'Reels', 'Instagram Feeds', 'Reels / Video'], true)) {
+            if ($diffDays < 7) {
+                $errors[] = "Jenis konten {$jenisKonten} membutuhkan waktu pengerjaan minimal H-7 sebelum publikasi.";
+            }
+        } elseif ($jenisKonten === 'Story' || $jenisKonten === 'Instagram Story') {
+            if ($diffDays < 3) {
+                $errors[] = 'Jenis konten Story wajib diajukan minimal H-3 sebelum tanggal publikasi.';
+            }
+        }
+
+        // c) Tolak jika slot terisi
+        if (!$this->cekKetersediaanSlot($tanggalPublikasi, $jamPublikasi)) {
+            $errors[] = "Slot jadwal publikasi pada tanggal {$tanggalPublikasi} pukul {$jamPublikasi} WIB telah dipesan oleh pengajuan lain.";
+        }
+
+        return [
+            'valid' => count($errors) === 0,
+            'errors' => $errors,
+            'diffDays' => $diffDays
+        ];
     }
 
     public function updateStatus(string $idPengajuan, string $statusBaru): bool

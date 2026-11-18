@@ -1,6 +1,28 @@
 <?php
 require_once __DIR__ . '/../../config/koneksi.php';
 
+// Ambil parameter tanggal & slot jam dari POST atau GET
+$tanggalPublikasi = trim($_POST['tanggal_publikasi'] ?? ($_POST['tanggalPublikasi'] ?? ($_GET['tanggal'] ?? '')));
+$jamPublikasi = trim($_POST['jam_publikasi'] ?? ($_POST['jamPublikasi'] ?? ($_GET['jam'] ?? '')));
+
+$validJam = ['09:00', '13:00', '15:00', '19:00'];
+$todayStr = date('Y-m-d');
+$todayTs = strtotime($todayStr);
+
+$targetTs = !empty($tanggalPublikasi) ? strtotime($tanggalPublikasi) : false;
+$diffDays = ($targetTs !== false) ? (int) round(($targetTs - $todayTs) / 86400) : -1;
+$dayOfWeek = ($targetTs !== false) ? (int) date('w', $targetTs) : -1; // 0 = Minggu
+
+// Syarat 3: Wajib menerima $_GET['tanggal'] dan $_GET['jam'].
+// Jika kosong, tidak valid, jatuh pada hari Minggu, atau selisih hari < 3 dari hari ini, redirect kembali ke kalender-jadwal.php
+if (empty($tanggalPublikasi) || empty($jamPublikasi) || !in_array($jamPublikasi, $validJam, true) || $targetTs === false || $dayOfWeek === 0 || $diffDays < 3) {
+    header("Location: kalender-jadwal.php");
+    exit;
+}
+
+// Aturan SOP: jika selisih 3 s.d. 6 hari, hanya Story yang aktif
+$isStoryOnly = ($diffDays >= 3 && $diffDays <= 6);
+
 $errors = [];
 $idPengaju = $_SESSION['user']['idPengaju'] ?? 'PGJ-001';
 
@@ -19,9 +41,12 @@ if ($koneksi) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $judulRequest = trim($_POST['judulRequest'] ?? '');
     $kementerianId = trim($_POST['kementerianId'] ?? '');
-    $tanggalPublikasi = trim($_POST['tanggalPublikasi'] ?? '');
-    $jenisPublikasi = trim($_POST['jenisPublikasi'] ?? 'Instagram Feeds');
+    $jenisKonten = trim($_POST['jenis_konten'] ?? ($_POST['jenisPublikasi'] ?? ($isStoryOnly ? 'Story' : 'Feeds')));
     $detailKonten = trim($_POST['detailKonten'] ?? '');
+
+    if ($isStoryOnly) {
+        $jenisKonten = 'Story';
+    }
 
     if (empty($judulRequest)) {
         $errors[] = 'Judul publikasi wajib diisi.';
@@ -31,6 +56,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     if (empty($detailKonten)) {
         $errors[] = 'Detail konten & redaksional (caption) wajib diisi.';
+    }
+
+    // Syarat 4.a: Tolak jika tanggal_publikasi adalah hari Minggu
+    if ($dayOfWeek === 0) {
+        $errors[] = 'Hari Minggu merupakan hari libur operasional CMI. Pengajuan tidak dapat dijadwalkan pada hari Minggu.';
+    }
+
+    // Syarat 4.b: Tolak jika jenis_konten adalah Feeds atau Reels tetapi selisih hari < 7 hari, atau jika Story tetapi selisih hari < 3 hari
+    if (in_array($jenisKonten, ['Feeds', 'Reels', 'Instagram Feeds', 'Reels / Video'], true)) {
+        if ($diffDays < 7) {
+            $errors[] = "Jenis konten {$jenisKonten} membutuhkan waktu pengerjaan minimal H-7 sebelum publikasi. Untuk tanggal {$tanggalPublikasi} (H-{$diffDays}), hanya jenis konten Story yang dapat diajukan.";
+        }
+    } elseif ($jenisKonten === 'Story' || $jenisKonten === 'Instagram Story') {
+        if ($diffDays < 3) {
+            $errors[] = 'Jenis konten Story wajib diajukan minimal H-3 sebelum tanggal publikasi.';
+        }
+    }
+
+    // Syarat 4.c: Tolak jika kombinasi tanggal_publikasi dan jam_publikasi sudah terisi di tabel pengajuan dengan status selain 'Ditolak'
+    if ($koneksi && empty($errors)) {
+        $cekSql = "SELECT COUNT(*) AS total FROM PENGAJUAN 
+                   WHERE (tanggal_publikasi = ? OR targetTanggal = ?) 
+                     AND (jam_publikasi = ? OR targetJam = ?) 
+                     AND (status_pengajuan != 'Ditolak' AND statusPengajuan != 'Ditolak')";
+        $stmtCek = mysqli_prepare($koneksi, $cekSql);
+        if ($stmtCek) {
+            mysqli_stmt_bind_param($stmtCek, "ssss", $tanggalPublikasi, $tanggalPublikasi, $jamPublikasi, $jamPublikasi);
+            mysqli_stmt_execute($stmtCek);
+            $resCek = mysqli_stmt_get_result($stmtCek);
+            $rowCek = mysqli_fetch_assoc($resCek);
+            mysqli_stmt_close($stmtCek);
+
+            if (($rowCek['total'] ?? 0) > 0) {
+                $errors[] = "Slot jadwal publikasi pada tanggal {$tanggalPublikasi} pukul {$jamPublikasi} WIB telah dipesan oleh pengajuan lain. Silakan pilih slot lain pada kalender.";
+            }
+        }
     }
 
     // Penanganan upload berkas acuan/referensi jika disertakan
@@ -75,29 +136,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($errors)) {
         $idPengajuan = 'REQ-' . date('Ymd') . '-' . rand(100, 999);
         $tanggalPengajuan = date('Y-m-d');
-        $targetTanggal = !empty($tanggalPublikasi) ? $tanggalPublikasi : $tanggalPengajuan;
         $statusAwal = 'Menunggu Peninjauan';
 
         if ($koneksi) {
             $stmt = mysqli_prepare($koneksi, "
                 INSERT INTO PENGAJUAN (
                     idPengajuan, idPengaju, kementerianId, judulRequest,
-                    tanggalPengajuan, targetTanggal, jenisMedia, detailKonten,
-                    statusPengajuan, sisaWaktuVerifikasi
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 3600)
+                    tanggalPengajuan, tanggal_publikasi, jam_publikasi, jenis_konten,
+                    targetTanggal, targetJam, jenisMedia, detailKonten,
+                    statusPengajuan, status_pengajuan, sisaWaktuVerifikasi
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 3600)
             ");
             if ($stmt) {
                 mysqli_stmt_bind_param(
                     $stmt,
-                    "sssssssss",
+                    "ssssssssssssss",
                     $idPengajuan,
                     $idPengaju,
                     $kementerianId,
                     $judulRequest,
                     $tanggalPengajuan,
-                    $targetTanggal,
-                    $jenisPublikasi,
+                    $tanggalPublikasi,
+                    $jamPublikasi,
+                    $jenisKonten,
+                    $tanggalPublikasi,
+                    $jamPublikasi,
+                    $jenisKonten,
                     $detailKonten,
+                    $statusAwal,
                     $statusAwal
                 );
                 mysqli_stmt_execute($stmt);
@@ -163,7 +229,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
         <div class="menu">
             <a href="status-pengajuan.php">Status Pengajuan</a>
-            <a class="active" href="pilihan-pengajuan.php">Buat Pengajuan</a>
+            <a class="active" href="kalender-jadwal.php">Ajukan Request</a>
         </div>
         <div class="right">
             <span class="pill">Pengaju: <?= htmlspecialchars($_SESSION['user']['nama'] ?? 'Pengaju Internal') ?></span>
@@ -174,11 +240,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="wrap">
         <div class="crumb">
             <a href="status-pengajuan.php">Status Pengajuan</a> &rsaquo;
-            <a href="pilihan-pengajuan.php">Pilihan Pengajuan</a> &rsaquo;
+            <a href="kalender-jadwal.php">Kalender Jadwal</a> &rsaquo;
             Form Request Publikasi Internal
         </div>
 
-        <!-- === AWAL BLOK KODE: FORM REQUEST INTERNAL (UI-04-01 s/d UI-04-03) === -->
+        <!-- === AWAL BLOK KODE: FORM REQUEST INTERNAL === -->
         <div class="card">
             <h1>Form Request Publikasi Internal</h1>
             <p class="sub">Lengkapi detail materi publikasi kementerian/biro untuk ditinjau dan diproses oleh tim CMI.
@@ -205,7 +271,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 Ukuran berkas melebihi batas 5 MB atau format tidak valid (JPG/PNG/PDF).
             </div>
 
-            <form id="formRequestInternal" method="POST" action="form-request.php" enctype="multipart/form-data"
+            <form id="formRequestInternal" method="POST" action="form-request.php?tanggal=<?= urlencode($tanggalPublikasi) ?>&jam=<?= urlencode($jamPublikasi) ?>" enctype="multipart/form-data"
                 novalidate>
                 <div class="form-group">
                     <label class="field-label" for="judulRequest">
@@ -217,7 +283,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
 
                 <div class="form-row">
-                    <div class="form-group">
+                    <div class="form-group" style="flex: 2;">
                         <label class="field-label" for="kementerianId">
                             Kementerian / Biro Pengaju <span class="req">*</span>
                         </label>
@@ -245,72 +311,117 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </select>
                     </div>
 
-                    <div class="form-group">
-                        <label class="field-label" for="tanggalPublikasi">
-                            Target Tanggal Publikasi <span class="req">*</span>
+                    <!-- Syarat 3: Field tanggal_publikasi (Readonly) -->
+                    <div class="form-group" style="flex: 1.2;">
+                        <label class="field-label" for="tanggal_publikasi">
+                            Tanggal Publikasi <span class="req">*</span>
                         </label>
-                        <input type="date" id="tanggalPublikasi" name="tanggalPublikasi"
-                            value="<?= htmlspecialchars($_POST['tanggalPublikasi'] ?? date('Y-m-d', strtotime('+3 days'))) ?>"
-                            required>
+                        <input type="date" id="tanggal_publikasi" name="tanggal_publikasi"
+                            value="<?= htmlspecialchars($tanggalPublikasi) ?>" readonly
+                            style="background: #f8fafc; cursor: not-allowed; border-color: #cbd5e1;" required>
+                        <input type="hidden" name="tanggalPublikasi" id="tanggalPublikasi" value="<?= htmlspecialchars($tanggalPublikasi) ?>">
+                    </div>
+
+                    <!-- Syarat 3: Field jam_publikasi (Readonly) -->
+                    <div class="form-group" style="flex: 1;">
+                        <label class="field-label" for="jam_publikasi">
+                            Jam Publikasi <span class="req">*</span>
+                        </label>
+                        <input type="text" id="jam_publikasi" name="jam_publikasi"
+                            value="<?= htmlspecialchars($jamPublikasi) ?>" readonly
+                            style="background: #f8fafc; cursor: not-allowed; border-color: #cbd5e1;" required>
+                        <input type="hidden" name="jamPublikasi" id="jamPublikasi" value="<?= htmlspecialchars($jamPublikasi) ?>">
                     </div>
                 </div>
 
+                <div style="margin-top: -10px; margin-bottom: 20px; font-size: 13px; color: #1e3a8a; background: #eff6ff; padding: 10px 14px; border-radius: 8px; border: 1px solid #bfdbfe;">
+                    🗓️ <em>Jadwal terpilih:</em> <strong><?= htmlspecialchars($tanggalPublikasi) ?></strong> pukul <strong><?= htmlspecialchars($jamPublikasi) ?> WIB</strong>.
+                    <a href="kalender-jadwal.php" style="color: #1d4ed8; font-weight: 700; margin-left: 8px; text-decoration: underline;">Ubah Jadwal di Kalender &rarr;</a>
+                </div>
+
+                <!-- Syarat 3: Pilihan Jenis Konten (Feeds, Reels, Story) dengan aturan H-3 s.d. H-6 dan >= H-7 -->
                 <div class="form-group">
                     <label class="field-label">
-                        Jenis Media Publikasi <span class="req">*</span>
+                        Jenis Konten Publikasi <span class="req">*</span>
                     </label>
                     <div class="radio-group">
-                        <?php $selectedJenis = $_POST['jenisPublikasi'] ?? 'Instagram Feeds'; ?>
-                        <label class="radio-chip">
-                            <input type="radio" name="jenisPublikasi" value="Instagram Feeds"
-                                <?= ($selectedJenis === 'Instagram Feeds' || $selectedJenis === 'Feeds') ? 'checked' : '' ?>>
-                            Instagram Feeds
+                        <?php 
+                        $selectedJenis = $_POST['jenis_konten'] ?? ($_POST['jenisPublikasi'] ?? ($isStoryOnly ? 'Story' : 'Feeds'));
+                        if ($isStoryOnly) {
+                            $selectedJenis = 'Story';
+                        }
+                        ?>
+                        <!-- Feeds: disabled jika 3 s.d. 6 hari -->
+                        <label class="radio-chip" style="<?= $isStoryOnly ? 'opacity: 0.55; cursor: not-allowed; background: #f8fafc;' : '' ?>">
+                            <input type="radio" name="jenis_konten" id="radioFeeds" value="Feeds"
+                                <?= ($selectedJenis === 'Feeds' || $selectedJenis === 'Instagram Feeds') ? 'checked' : '' ?>
+                                <?= $isStoryOnly ? 'disabled' : '' ?>>
+                            Feeds <?= $isStoryOnly ? '<small style="color:#ef4444; font-weight:700;">(Min. H-7)</small>' : '' ?>
                         </label>
-                        <label class="radio-chip">
-                            <input type="radio" name="jenisPublikasi" value="Instagram Story"
-                                <?= ($selectedJenis === 'Instagram Story' || $selectedJenis === 'Story') ? 'checked' : '' ?>>
-                            Instagram Story
+
+                        <!-- Reels: disabled jika 3 s.d. 6 hari -->
+                        <label class="radio-chip" style="<?= $isStoryOnly ? 'opacity: 0.55; cursor: not-allowed; background: #f8fafc;' : '' ?>">
+                            <input type="radio" name="jenis_konten" id="radioReels" value="Reels"
+                                <?= ($selectedJenis === 'Reels' || $selectedJenis === 'Reels / Video') ? 'checked' : '' ?>
+                                <?= $isStoryOnly ? 'disabled' : '' ?>>
+                            Reels <?= $isStoryOnly ? '<small style="color:#ef4444; font-weight:700;">(Min. H-7)</small>' : '' ?>
                         </label>
+
+                        <!-- Story: selalu aktif jika >= H-3 -->
                         <label class="radio-chip">
-                            <input type="radio" name="jenisPublikasi" value="Reels / Video" <?= ($selectedJenis === 'Reels / Video' || $selectedJenis === 'Reels') ? 'checked' : '' ?>>
-                            Reels / Video
+                            <input type="radio" name="jenis_konten" id="radioStory" value="Story"
+                                <?= ($selectedJenis === 'Story' || $selectedJenis === 'Instagram Story') ? 'checked' : '' ?>>
+                            Story <?= $isStoryOnly ? '<small style="color:#16a34a; font-weight:700;">(Tersedia Min. H-3)</small>' : '' ?>
                         </label>
                     </div>
+
+                    <?php if ($isStoryOnly): ?>
+                        <input type="hidden" name="jenis_konten" value="Story">
+                        <small style="display:block; margin-top:8px; color:#d97706; font-weight:600; font-size:12.5px;">
+                            ℹ️ Tanggal ini berjarak <strong><?= $diffDays ?> hari</strong> dari hari ini (H-3 s.d. H-6). Sesuai ketentuan SOP CMI, slot ini khusus untuk jenis konten <strong>Story</strong>. Opsi Feeds dan Reels membutuhkan waktu pengerjaan minimal H-7.
+                        </small>
+                    <?php else: ?>
+                        <small style="display:block; margin-top:8px; color:#16a34a; font-weight:600; font-size:12.5px;">
+                            ✓ Tanggal ini berjarak <strong><?= $diffDays ?> hari</strong> (&ge; H-7). Seluruh jenis konten (Feeds, Reels, Story) dapat dipilih.
+                        </small>
+                    <?php endif; ?>
                 </div>
 
                 <div class="form-group">
                     <label class="field-label" for="detailKonten">
                         Detail Konten &amp; Redaksional (Caption) <span class="req">*</span>
                     </label>
-                    <textarea id="detailKonten" name="detailKonten"
-                        placeholder="Tuliskan poin isi desain, tanggal/tempat kegiatan, narahubung, serta draf caption publikasi..."
+                    <textarea id="detailKonten" name="detailKonten" rows="5"
+                        placeholder="Tuliskan materi konten lengkap, tanggal kegiatan, sasaran kegiatan, dan naskah caption publikasi..."
                         required><?= htmlspecialchars($_POST['detailKonten'] ?? '') ?></textarea>
                 </div>
 
                 <div class="form-group">
-                    <label class="field-label" for="berkasAcuan">
-                        Berkas Acuan / Referensi Desain (Opsional)
-                    </label>
-                    <div class="dropzone" id="dropzoneAcuan" onclick="document.getElementById('berkasAcuan').click()">
-                        <div class="dropzone-title">Klik untuk memilih berkas referensi</div>
-                        <div class="dropzone-hint">Format yang didukung: JPG, JPEG, PNG, atau PDF (Maksimal 5 MB)</div>
-                        <div class="file-selected-name" id="namaBerkasTerpilih"></div>
+                    <label class="field-label">Berkas Acuan / Referensi Desain (Opsional)</label>
+                    <div class="dropzone" id="dropzoneAcuan"
+                        onclick="document.getElementById('berkasAcuan').click();">
+                        <div class="dropzone-icon">📁</div>
+                        <div class="dropzone-text">
+                            <strong>Klik atau seret berkas acuan ke area ini</strong><br>
+                            Mendukung berkas JPG, PNG, atau PDF (maks. 5 MB)
+                        </div>
                     </div>
-                    <input type="file" id="berkasAcuan" name="berkasAcuan" accept=".jpg,.jpeg,.png,.pdf" hidden>
+                    <input type="file" id="berkasAcuan" name="berkasAcuan" accept=".jpg,.jpeg,.png,.pdf"
+                        style="display:none;">
+                    <div class="file-selected-name" id="namaBerkasTerpilih"></div>
                 </div>
 
-                <div class="actions">
-                    <a href="pilihan-pengajuan.php" class="btn">Kembali</a>
-                    <button type="button" id="btnNextPreview" class="btn primary">Next &rarr;</button>
+                <div class="form-actions">
+                    <a href="kalender-jadwal.php" class="btn" style="text-decoration:none;">&larr; Kembali ke Kalender</a>
+                    <button type="button" id="btnNextPreview" class="btn primary">Next &rarr; Pratinjau</button>
                 </div>
 
-                <!-- === MODAL POP-UP PREVIEW REQUEST (UI-03-01) === -->
-                <div id="modalPreviewRequest" class="modal-overlay" role="dialog" aria-modal="true"
-                    aria-labelledby="modalPreviewTitle" hidden>
+                <!-- [GYS - IM-003] DialogKonfirmasiPengajuan: Modal Pratinjau 180 Detik -->
+                <div class="modal-overlay" id="modalPreviewRequest" hidden>
                     <div class="modal-dialog">
                         <div class="modal-header">
-                            <h2 id="modalPreviewTitle">Pratinjau Data Pengajuan</h2>
-                            <span class="timer-badge">Sisa Waktu: <span id="countdownTimer">03:00</span></span>
+                            <h2>Pratinjau Request Publikasi Internal</h2>
+                            <span id="countdownTimer" class="badge-timer">Waktu verifikasi: 180s</span>
                         </div>
                         <p class="modal-desc">
                             Periksa kembali seluruh detail pengajuan publikasi Anda sebelum dikirimkan ke tim CMI.
@@ -327,11 +438,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <td id="prevKementerian">-</td>
                                 </tr>
                                 <tr>
-                                    <th>Jenis Publikasi</th>
+                                    <th>Jenis Konten</th>
                                     <td id="prevJenis">-</td>
                                 </tr>
                                 <tr>
-                                    <th>Target Tanggal</th>
+                                    <th>Jadwal Publikasi</th>
                                     <td id="prevTanggal">-</td>
                                 </tr>
                                 <tr>

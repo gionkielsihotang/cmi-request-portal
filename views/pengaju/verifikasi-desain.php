@@ -80,7 +80,7 @@ $sisaWaktu = (int) ($pengajuan['sisaWaktuVerifikasi'] ?? 3600);
         </div>
         <div class="menu">
             <a href="status-pengajuan.php">Status Pengajuan</a>
-            <a href="pilihan-pengajuan.php">Buat Pengajuan</a>
+            <a href="kalender-jadwal.php">Ajukan Request</a>
         </div>
         <div class="right">
             <span class="pill">Pengaju: <?= htmlspecialchars($_SESSION['user']['nama'] ?? 'Pengaju Internal') ?></span>

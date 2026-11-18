@@ -619,7 +619,10 @@ function getBadgeClass($status)
                       <small
                         style="color:var(--muted);"><?= htmlspecialchars($r['jenisMedia'] ?? 'Instagram Feeds') ?></small>
                     </td>
-                    <td><?= htmlspecialchars($r['targetTanggal'] ?? $r['tanggalPengajuan']) ?></td>
+                    <td>
+                      <?= htmlspecialchars($r['targetTanggal'] ?? $r['tanggalPengajuan']) ?>
+                      <?= !empty($r['targetJam']) ? '<br><small style="color:var(--muted); font-weight:600;">' . htmlspecialchars($r['targetJam']) . ' WIB</small>' : '' ?>
+                    </td>
                     <td><?= htmlspecialchars($instansi) ?></td>
                     <td><span class="badge <?= $badgeCls ?>"><?= htmlspecialchars($r['statusPengajuan']) ?></span></td>
                     <td class="go">›</td>
@@ -668,8 +671,11 @@ function getBadgeClass($status)
                 <dd><?= htmlspecialchars($detailData['jenisMedia'] ?? 'Instagram Feeds') ?></dd>
               </div>
               <div class="row">
-                <dt>Tanggal publikasi</dt>
-                <dd><?= htmlspecialchars($detailData['targetTanggal'] ?? $detailData['tanggalPengajuan']) ?></dd>
+                <dt>Jadwal publikasi</dt>
+                <dd>
+                  <?= htmlspecialchars($detailData['targetTanggal'] ?? $detailData['tanggalPengajuan']) ?>
+                  <?= !empty($detailData['targetJam']) ? ' • Pukul ' . htmlspecialchars($detailData['targetJam']) . ' WIB' : '' ?>
+                </dd>
               </div>
               <div class="row">
                 <dt>Pengaju</dt>
