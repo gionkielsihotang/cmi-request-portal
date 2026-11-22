@@ -1,4 +1,11 @@
 <?php
+/**
+ * SUBBAB 4.2 PROGRAM IMPLEMENTATION CODE
+ * ID Kode     : [CF-SC01]
+ * Nama Kelas  : ControlStatusPengajuan
+ * Acuan SDD   : Bab 3.4 Package Pengajuan & Bab 3.6 (PC-CRI-01, PC-CRI-02)
+ * Penyusun    : Callysta Fredelina
+ */
 require_once __DIR__ . '/../../entities/Pengajuan.php';
 require_once __DIR__ . '/../../boundaries/HalamanStatusPengajuan.php';
 require_once __DIR__ . '/../../boundaries/HalamanDetailPengajuan.php';
