@@ -1,0 +1,21 @@
+{
+    "name": "cmi/request-portal",
+    "description": "Portal Request Publikasi & Riset CMI BEM FILKOM UB",
+    "type": "project",
+    "require-dev": {
+        "phpunit/phpunit": "^10.5"
+    },
+    "autoload": {
+        "classmap": [
+            "controllers/",
+            "entities/",
+            "boundaries/",
+            "config/"
+        ]
+    },
+    "config": {
+        "bin-dir": "vendor/bin",
+        "disable-tls": true,
+        "secure-http": false
+    }
+}

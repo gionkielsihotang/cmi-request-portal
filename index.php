@@ -144,6 +144,12 @@ if (isset($_GET['role'])) {
                 </div>
             </div>
 
+            <div style="margin-top: 28px; padding-top: 20px; border-top: 1px dashed #e2e8f0; display: flex; justify-content: center; gap: 16px; align-items: center; flex-wrap: wrap;">
+                <span style="font-size: 13px; color: #64748b;">Pengujian Modul &amp; SDD:</span>
+                <a href="tests/test_kirim_data_request.php" class="btn-sm" style="text-decoration: none; background: #eff6ff; color: #1b3a9e; border: 1px solid #bfdbfe; padding: 6px 14px; border-radius: 6px; font-weight: 600; font-size: 12.5px;">
+                    🧪 Jalankan Test Suite: kirimDataRequest() &rarr;
+                </a>
+            </div>
 
         </div>
     </div>

@@ -170,6 +170,19 @@ Terdapat 9 tabel relasional dalam database `cmi_portal`:
 
 ---
 
+## 🧪 Pengujian Otomatis (Unit Testing)
+
+Tersedia berkas *automated test suite* untuk menguji method paling kompleks `ControlRequestInternal::kirimDataRequest()` mencakup 13 skenario kasus uji (Alur Normal & Alur Alternatif):
+
+- **Menjalankan via Browser**:
+  Akses URL: `http://localhost/cmi-request-portal/tests/test_kirim_data_request.php`
+- **Menjalankan via Terminal CLI**:
+  ```bash
+  php tests/test_kirim_data_request.php
+  ```
+
+---
+
 ## 🔑 Kredensial Akun Demo
 
 Sistem menyediakan mekanisme *Role Switcher* instan pada halaman pembuka (`index.php`):

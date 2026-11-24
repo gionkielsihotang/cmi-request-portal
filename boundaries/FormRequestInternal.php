@@ -12,7 +12,7 @@ class FormRequestInternal
         return ['redirect' => '../views/pengaju/form-request.html'];
     }
 
-    public function tampilFormRequest(array $dataLama = []): array
+    public static function tampilFormRequest(array $dataLama = []): array
     {
         return [
             'view' => 'views/pengaju/form-request.html',
@@ -20,17 +20,17 @@ class FormRequestInternal
         ];
     }
 
-    public function isiForm(array $dataForm): array
+    public static function isiForm(array $dataForm): array
     {
         return $dataForm;
     }
 
-    public function unggahBerkas(array $daftarBerkas): array
+    public static function unggahBerkas(array $daftarBerkas): array
     {
         return $daftarBerkas;
     }
 
-    public function klikNext(array $dataForm, array $daftarBerkas = []): array
+    public static function klikNext(array $dataForm, array $daftarBerkas = []): array
     {
         return [
             'step' => 'preview',
@@ -39,7 +39,7 @@ class FormRequestInternal
         ];
     }
 
-    public function tampilIndikatorError(string $pesanError = 'Lengkapi kolom yang ditandai', array $fieldErrors = []): array
+    public static function tampilIndikatorError(string $pesanError = 'Lengkapi kolom yang ditandai', array $fieldErrors = []): array
     {
         return [
             'success' => false,
@@ -49,7 +49,7 @@ class FormRequestInternal
         ];
     }
 
-    public function tampilPeringatanBerkas(string $pesanBerkas): array
+    public static function tampilPeringatanBerkas(string $pesanBerkas): array
     {
         return [
             'success' => false,

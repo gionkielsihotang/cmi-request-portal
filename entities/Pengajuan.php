@@ -66,7 +66,7 @@ class Pengajuan
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function cekKelengkapanForm(array $dataForm): array
+    public static function cekKelengkapanForm(array $dataForm): array
     {
         $errors = [];
         $wajib = ['judulRequest', 'tanggalPengajuan', 'detailKonten'];

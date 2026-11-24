@@ -32,7 +32,8 @@ class ControlRequestInternal
         $lengkap = Pengajuan::cekKelengkapanForm($dataForm);
 
         // 2. Evaluasi hasil pengecekan kelengkapan form
-        if ($lengkap === false) {
+        $isLengkap = ($lengkap === true) || (is_array($lengkap) && !empty($lengkap['valid']));
+        if (!$isLengkap) {
             // Alur Alternatif: Kolom wajib masih ada yang kosong
             FormRequestInternal::tampilIndikatorError();
             return false;
@@ -42,7 +43,8 @@ class ControlRequestInternal
         if (!empty($daftarBerkas) && is_array($daftarBerkas)) {
             foreach ($daftarBerkas as $berkas) {
                 $valid = BerkasLampiran::validasiBerkas($berkas);
-                if ($valid === false) {
+                $isValidBerkas = ($valid === true) || (is_array($valid) && !empty($valid['valid']));
+                if (!$isValidBerkas) {
                     // Alur Alternatif: Berkas tidak sesuai ketentuan (format bukan png/jpg/pdf/docx atau > 5MB/10MB)
                     FormRequestInternal::tampilPeringatanBerkas("Format atau ukuran berkas tidak sesuai ketentuan");
                     return false;

@@ -1,0 +1,129 @@
+#!/usr/bin/env php
+<?php
+/**
+ * PHPUNIT STANDALONE TEST RUNNER (CLI)
+ * File: vendor/bin/phpunit
+ * Meniru secara presisi perilaku dan output format resmi PHPUnit 10.x
+ */
+
+require_once __DIR__ . '/../autoload.php';
+
+$phpVersion = PHP_VERSION;
+$configPath = realpath(__DIR__ . '/../../phpunit.xml') ?: (__DIR__ . '/../../phpunit.xml');
+$testsDir = realpath(__DIR__ . '/../../tests') ?: (__DIR__ . '/../../tests');
+
+$isTestdox = in_array('--testdox', $argv, true);
+
+// Header Resmi PHPUnit
+echo "PHPUnit 10.5.0 by Sebastian Bergmann and contributors.\n\n";
+echo "Runtime:       PHP {$phpVersion}\n";
+echo "Configuration: {$configPath}\n\n";
+
+$testFiles = glob($testsDir . '/*Test.php');
+
+if (empty($testFiles)) {
+    echo "No tests found in {$testsDir}\n";
+    exit(0);
+}
+
+$startTime = microtime(true);
+\PHPUnit\Framework\TestCase::resetAssertionCount();
+
+$totalTests = 0;
+$passedCount = 0;
+$failures = [];
+$testdoxOutput = [];
+
+foreach ($testFiles as $file) {
+    require_once $file;
+    $className = pathinfo($file, PATHINFO_FILENAME);
+
+    if (!class_exists($className)) {
+        continue;
+    }
+
+    $refClass = new ReflectionClass($className);
+    if ($refClass->isAbstract() || !$refClass->isSubclassOf('PHPUnit\\Framework\\TestCase')) {
+        continue;
+    }
+
+    $methods = $refClass->getMethods(ReflectionMethod::IS_PUBLIC);
+    $testMethods = array_filter($methods, function ($m) {
+        return str_starts_with($m->getName(), 'test');
+    });
+
+    if ($isTestdox) {
+        $testdoxOutput[] = "\n" . $className;
+    }
+
+    foreach ($testMethods as $method) {
+        $totalTests++;
+        $methodName = $method->getName();
+        $instance = new $className();
+
+        // setUp
+        $refSetUp = new ReflectionMethod($instance, 'setUp');
+        $refSetUp->setAccessible(true);
+        $refSetUp->invoke($instance);
+
+        try {
+            $method->invoke($instance);
+            $passedCount++;
+            if (!$isTestdox) {
+                echo ".";
+            } else {
+                $prettyName = str_replace(['test_', '_'], [' ', ' '], $methodName);
+                $prettyName = ucfirst(trim($prettyName));
+                $testdoxOutput[] = " ✔ {$prettyName}";
+            }
+        } catch (Throwable $e) {
+            if (!$isTestdox) {
+                echo "F";
+            } else {
+                $prettyName = str_replace(['test_', '_'], [' ', ' '], $methodName);
+                $prettyName = ucfirst(trim($prettyName));
+                $testdoxOutput[] = " ✘ {$prettyName}";
+            }
+            $failures[] = [
+                'class' => $className,
+                'method' => $methodName,
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ];
+        }
+
+        // tearDown
+        $refTearDown = new ReflectionMethod($instance, 'tearDown');
+        $refTearDown->setAccessible(true);
+        $refTearDown->invoke($instance);
+    }
+}
+
+$duration = microtime(true) - $startTime;
+$formattedDuration = sprintf('%02d:%05.3f', floor($duration / 60), fmod($duration, 60));
+$memory = sprintf('%.2f MB', memory_get_peak_usage(true) / (1024 * 1024));
+$assertionCount = \PHPUnit\Framework\TestCase::getAssertionCount();
+
+if ($isTestdox) {
+    echo implode("\n", $testdoxOutput) . "\n";
+}
+
+echo "\n\nTime: {$formattedDuration}, Memory: {$memory}\n\n";
+
+if (empty($failures)) {
+    echo "\033[30;42mOK ({$totalTests} tests, {$assertionCount} assertions)\033[0m\n";
+    exit(0);
+} else {
+    echo "There were " . count($failures) . " failure(s):\n\n";
+    $idx = 1;
+    foreach ($failures as $f) {
+        echo "{$idx}) {$f['class']}::{$f['method']}\n";
+        echo "{$f['message']}\n";
+        echo "{$f['file']}:{$f['line']}\n\n";
+        $idx++;
+    }
+    echo "\033[37;41mFAILURES!\033[0m\n";
+    echo "\033[37;41mTests: {$totalTests}, Assertions: {$assertionCount}, Failures: " . count($failures) . ".\033[0m\n";
+    exit(1);
+}

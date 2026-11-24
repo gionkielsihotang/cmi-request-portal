@@ -3,7 +3,7 @@
 
 class DialogPreviewRequest
 {
-    public function tampilPreview(array $dataForm, array $daftarBerkas = [], int $durasi = 180): array
+    public static function tampilPreview(array $dataForm, array $daftarBerkas = [], int $durasi = 180): array
     {
         return [
             'success' => true,
@@ -14,17 +14,17 @@ class DialogPreviewRequest
         ];
     }
 
-    public function mulaiCountdown(int $durasi = 180): array
+    public static function mulaiCountdown(int $durasi = 180): array
     {
         return ['timerSeconds' => $durasi];
     }
 
-    public function periksaDataPreview(array $dataForm): array
+    public static function periksaDataPreview(array $dataForm): array
     {
         return $dataForm;
     }
 
-    public function klikSubmit(array $dataForm, array $daftarBerkas = []): array
+    public static function klikSubmit(array $dataForm, array $daftarBerkas = []): array
     {
         return [
             'action' => 'submit_request',
@@ -35,10 +35,10 @@ class DialogPreviewRequest
 
     public function klikBack(): array
     {
-        return $this->tutupPreview();
+        return self::tutupPreview();
     }
 
-    public function tutupPreview(): array
+    public static function tutupPreview(): array
     {
         return [
             'modalClosed' => true,
@@ -46,7 +46,7 @@ class DialogPreviewRequest
         ];
     }
 
-    public function tampilNotifWaktuHabis(): array
+    public static function tampilNotifWaktuHabis(): array
     {
         return [
             'success' => false,
@@ -55,7 +55,7 @@ class DialogPreviewRequest
         ];
     }
 
-    public function tampilNotifikasiBerhasil(string $idPengajuan): array
+    public static function tampilNotifikasiBerhasil(string $idPengajuan): array
     {
         return [
             'success' => true,

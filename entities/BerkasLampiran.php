@@ -25,7 +25,7 @@ class BerkasLampiran
         }
     }
 
-    public function validasiBerkas(array $file, int $maxSizeMB = 10, array $allowedExt = ['jpg', 'jpeg', 'png', 'pdf']): array
+    public static function validasiBerkas(array $file, int $maxSizeMB = 10, array $allowedExt = ['jpg', 'jpeg', 'png', 'pdf']): array
     {
         if (empty($file['name']) || ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
             return ['valid' => false, 'message' => 'Berkas belum dipilih atau gagal diunggah.'];
