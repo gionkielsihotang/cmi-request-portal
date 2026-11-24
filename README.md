@@ -181,12 +181,4 @@ Sistem menyediakan mekanisme *Role Switcher* instan pada halaman pembuka (`index
 
 ---
 
-## 👨‍💻 Kontributor
 
-Pengembang proyek Rekayasa Sistem Informasi (RSI) BEM FILKOM Universitas Brawijaya:
-* **Gion Yehezkiel Sihotang** — *Package Pengajuan & Entity Core*
-* **Adinda** — *Package Peninjauan CMI & Audit Log*
-* **Revalia Rahmadani** — *Package Desain & Verifikasi*
-
----
-&copy; 2026 Biro Center of Media and Information (CMI) &bull; BEM Fakultas Ilmu Komputer Universitas Brawijaya.
