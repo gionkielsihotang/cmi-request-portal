@@ -2,11 +2,8 @@
 use PHPUnit\Framework\TestCase;
 
 /**
- * PENGUJIAN UNIT SISTEM (PHPUNIT STANDAR)
- * Target Kelas : ControlRequestInternal
+ * PENGUJIAN UNIT SISTEM (WHITE BOX TESTING & PHPUNIT)
  * Target Method: kirimDataRequest($dataForm, $daftarBerkas)
- * Acuan SDD   : Bab 3.4 & Bab 3.6 (PC-CRI-02)
- * File         : tests/ControlRequestInternalTest.php
  */
 class ControlRequestInternalTest extends TestCase
 {
@@ -17,10 +14,72 @@ class ControlRequestInternalTest extends TestCase
         $this->controller = new ControlRequestInternal();
     }
 
+    // =========================================================================
+    // BAGIAN 1: PENGUJIAN BASIS PATH TESTING (4 JALUR INDEPENDEN)
+    // =========================================================================
+
     /**
-     * TC-01: Alur Normal - Form Lengkap dengan Berkas PDF Valid
+     * TC-01: Menguji Path 1 (1 -> 2 -> 3 -> 8)
+     * Kondisi: Keputusan D1 = True (lengkap == FALSE ?)
+     * Node  : Node 1 -> Node 2 -> Node 3 -> Node 8
      */
-    public function test_tc01_form_lengkap_dan_berkas_pdf_valid(): void
+    public function test_path_1_form_tidak_lengkap_indikator_error(): void
+    {
+        $dataForm = [
+            'judulRequest' => '', // Judul kosong -> form tidak lengkap
+            'tanggalPengajuan' => '2026-11-24',
+            'detailKonten' => 'Materi sosialisasi pembukaan beasiswa.'
+        ];
+        $daftarBerkas = [];
+
+        $hasil = $this->controller->kirimDataRequest($dataForm, $daftarBerkas);
+        $this->assertFalse($hasil, 'Path 1: Seharusnya mengembalikan false dan memicu tampilIndikatorError().');
+    }
+
+    /**
+     * TC-02: Menguji Path 2 (1 -> 2 -> 4 -> 7 -> 8)
+     * Kondisi: Keputusan D1 = False (lengkap == TRUE), D2 = False (berkas kosong / tidak ada loop)
+     * Node  : Node 1 -> Node 2 -> Node 4 -> Node 7 -> Node 8
+     */
+    public function test_path_2_form_lengkap_tanpa_lampiran_berkas(): void
+    {
+        $dataForm = [
+            'judulRequest' => 'Ucapan Hari Besar Nasional',
+            'tanggalPengajuan' => '2026-11-24',
+            'detailKonten' => 'Naskah ucapan peringatan hari pahlawan nasional.'
+        ];
+        $daftarBerkas = []; // Array berkas kosong -> alur tanpa lampiran
+
+        $hasil = $this->controller->kirimDataRequest($dataForm, $daftarBerkas);
+        $this->assertTrue($hasil, 'Path 2: Seharusnya lolos ke preview karena lampiran berkas bersifat opsional.');
+    }
+
+    /**
+     * TC-03: Menguji Path 3 (1 -> 2 -> 4 -> 5 -> 6 -> 8)
+     * Kondisi: Keputusan D1 = False, D2 = True (ada loop), D3 = True (valid == FALSE ?)
+     * Node  : Node 1 -> Node 2 -> Node 4 -> Node 5 -> Node 6 -> Node 8
+     */
+    public function test_path_3_form_lengkap_berkas_tidak_valid(): void
+    {
+        $dataForm = [
+            'judulRequest' => 'Workshop Cybersecurity',
+            'tanggalPengajuan' => '2026-11-24',
+            'detailKonten' => 'Materi pengantar keamanan sistem informasi.'
+        ];
+        $daftarBerkas = [
+            ['name' => 'payload_script.exe', 'size' => 500 * 1024, 'error' => UPLOAD_ERR_OK] // Format .exe dilarang
+        ];
+
+        $hasil = $this->controller->kirimDataRequest($dataForm, $daftarBerkas);
+        $this->assertFalse($hasil, 'Path 3: Seharusnya mengembalikan false dan memicu tampilPeringatanBerkas().');
+    }
+
+    /**
+     * TC-04: Menguji Path 4 (1 -> 2 -> 4 -> 5 -> 4 -> 7 -> 8)
+     * Kondisi: Keputusan D1 = False, D2 = True, D3 = False (valid == TRUE, loop selesai -> preview)
+     * Node  : Node 1 -> Node 2 -> Node 4 -> Node 5 -> (loop back) -> Node 4 -> Node 7 -> Node 8
+     */
+    public function test_path_4_form_lengkap_berkas_valid_berhasil_kirim(): void
     {
         $dataForm = [
             'judulRequest' => 'Sosialisasi Beasiswa Filkom 2026',
@@ -32,60 +91,15 @@ class ControlRequestInternalTest extends TestCase
         ];
 
         $hasil = $this->controller->kirimDataRequest($dataForm, $daftarBerkas);
-        $this->assertTrue($hasil, 'Seharusnya lolos karena seluruh form dan berkas PDF valid.');
+        $this->assertTrue($hasil, 'Path 4: Seharusnya lolos ke preview karena form dan berkas PDF valid.');
     }
 
-    /**
-     * TC-02: Alur Normal - Form Lengkap dengan Berkas Gambar (PNG/JPG) Valid
-     */
-    public function test_tc02_form_lengkap_dan_berkas_gambar_valid(): void
-    {
-        $dataForm = [
-            'judulRequest' => 'Open Recruitment Staff Ahli BEM 2026',
-            'tanggalPengajuan' => '2026-11-24',
-            'detailKonten' => 'Pendaftaran staf ahli dibuka untuk seluruh mahasiswa.'
-        ];
-        $daftarBerkas = [
-            ['name' => 'poster-oprec.png', 'size' => 1.5 * 1024 * 1024, 'error' => UPLOAD_ERR_OK]
-        ];
-
-        $hasil = $this->controller->kirimDataRequest($dataForm, $daftarBerkas);
-        $this->assertTrue($hasil, 'Seharusnya lolos dengan berkas gambar format PNG <= 10 MB.');
-    }
+    // =========================================================================
+    // BAGIAN 2: PENGUJIAN BOUNDARY VALUE ANALYSIS (BVA) & EQUIVALENCE PARTITIONING
+    // =========================================================================
 
     /**
-     * TC-03: Alur Normal - Form Lengkap Tanpa Berkas Lampiran (Opsional)
-     */
-    public function test_tc03_form_lengkap_tanpa_lampiran_berkas(): void
-    {
-        $dataForm = [
-            'judulRequest' => 'Ucapan Hari Besar Nasional',
-            'tanggalPengajuan' => '2026-11-24',
-            'detailKonten' => 'Naskah ucapan peringatan hari pahlawan nasional.'
-        ];
-        $daftarBerkas = [];
-
-        $hasil = $this->controller->kirimDataRequest($dataForm, $daftarBerkas);
-        $this->assertTrue($hasil, 'Seharusnya lolos karena lampiran berkas bersifat opsional.');
-    }
-
-    /**
-     * TC-04: Alur Alternatif - Gagal karena Judul Request Kosong
-     */
-    public function test_tc04_gagal_karena_judul_request_kosong(): void
-    {
-        $dataForm = [
-            'judulRequest' => '',
-            'tanggalPengajuan' => '2026-11-24',
-            'detailKonten' => 'Detail naskah terisi namun judul terlewatkan.'
-        ];
-
-        $hasil = $this->controller->kirimDataRequest($dataForm);
-        $this->assertFalse($hasil, 'Seharusnya ditolak jika judulRequest kosong.');
-    }
-
-    /**
-     * TC-05: Alur Alternatif - Gagal karena Judul Hanya Whitespace
+     * TC-05: Variasi Form - Judul Hanya Berisi Spasi (Whitespace)
      */
     public function test_tc05_gagal_karena_judul_hanya_whitespace(): void
     {
@@ -100,7 +114,7 @@ class ControlRequestInternalTest extends TestCase
     }
 
     /**
-     * TC-06: Alur Alternatif - Gagal karena Tanggal Pengajuan Kosong
+     * TC-06: Variasi Form - Tanggal Pengajuan Kosong
      */
     public function test_tc06_gagal_karena_tanggal_pengajuan_kosong(): void
     {
@@ -115,7 +129,7 @@ class ControlRequestInternalTest extends TestCase
     }
 
     /**
-     * TC-07: Alur Alternatif - Gagal karena Detail Konten / Caption Kosong
+     * TC-07: Variasi Form - Detail Konten Kosong
      */
     public function test_tc07_gagal_karena_detail_konten_kosong(): void
     {
@@ -130,7 +144,7 @@ class ControlRequestInternalTest extends TestCase
     }
 
     /**
-     * TC-08: Alur Alternatif - Gagal karena Form Kosong Total
+     * TC-08: Variasi Form - Seluruh Field Form Kosong Total
      */
     public function test_tc08_gagal_karena_seluruh_form_kosong(): void
     {
@@ -139,25 +153,25 @@ class ControlRequestInternalTest extends TestCase
     }
 
     /**
-     * TC-09: Alur Alternatif - Gagal karena Format Berkas Terlarang (.exe)
+     * TC-09: Variasi Berkas - Gambar PNG Valid
      */
-    public function test_tc09_gagal_karena_format_berkas_terlarang_exe(): void
+    public function test_tc09_berkas_gambar_png_valid(): void
     {
         $dataForm = [
-            'judulRequest' => 'Workshop Cybersecurity',
+            'judulRequest' => 'Open Recruitment Staff Ahli BEM 2026',
             'tanggalPengajuan' => '2026-11-24',
-            'detailKonten' => 'Materi pengantar keamanan sistem.'
+            'detailKonten' => 'Pendaftaran staf ahli dibuka untuk seluruh mahasiswa.'
         ];
         $daftarBerkas = [
-            ['name' => 'payload_script.exe', 'size' => 500 * 1024, 'error' => UPLOAD_ERR_OK]
+            ['name' => 'poster-oprec.png', 'size' => 1.5 * 1024 * 1024, 'error' => UPLOAD_ERR_OK]
         ];
 
         $hasil = $this->controller->kirimDataRequest($dataForm, $daftarBerkas);
-        $this->assertFalse($hasil, 'Seharusnya ditolak jika berkas berekstensi .exe.');
+        $this->assertTrue($hasil, 'Seharusnya lolos dengan format PNG valid <= 10 MB.');
     }
 
     /**
-     * TC-10: Alur Alternatif - Gagal karena Format Berkas Arsip (.zip)
+     * TC-10: Variasi Berkas - Format Berkas Arsip (.zip)
      */
     public function test_tc10_gagal_karena_format_berkas_arsip_zip(): void
     {
@@ -175,7 +189,7 @@ class ControlRequestInternalTest extends TestCase
     }
 
     /**
-     * TC-11: Alur Alternatif - Gagal karena Ukuran Berkas Melebihi Batas (> 10 MB)
+     * TC-11: Variasi Berkas - Ukuran Melebihi Batas (> 10 MB)
      */
     public function test_tc11_gagal_karena_ukuran_berkas_melebihi_batas(): void
     {
@@ -193,7 +207,7 @@ class ControlRequestInternalTest extends TestCase
     }
 
     /**
-     * TC-12: Alur Alternatif - Gagal karena Error Status Unggahan (Corrupt)
+     * TC-12: Variasi Berkas - Status Error Unggahan (Corrupt)
      */
     public function test_tc12_gagal_karena_error_status_unggahan(): void
     {
@@ -211,7 +225,7 @@ class ControlRequestInternalTest extends TestCase
     }
 
     /**
-     * TC-13: Alur Alternatif - Multi-Berkas: Salah Satu Berkas Tidak Valid
+     * TC-13: Variasi Berkas - Multi-Berkas: Salah Satu Berkas Tidak Valid (.xlsx)
      */
     public function test_tc13_gagal_karena_salah_satu_multi_berkas_tidak_valid(): void
     {
