@@ -21,7 +21,7 @@ if (isset($_GET['role'])) {
 if (!isset($_SESSION['user'])) {
     $_SESSION['user'] = [
         'idPengaju' => 'PGJ-001',
-        'nim' => '245150201111001',
+        'nim' => '255150401111041',
         'nama' => 'Gion Yehezkiel Sihotang',
         'email' => 'gion@student.ub.ac.id',
         'kementerianId' => 'KEM-01',
