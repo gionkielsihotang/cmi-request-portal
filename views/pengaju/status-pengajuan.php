@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../../config/koneksi.php';
 
-$idPengaju = $_SESSION['user']['idPengaju'] ?? 'PGJ-001';
+$idPengaju = $_SESSION['user']['idPengaju'] ?? 'PGJ-001'; //Ambil ID pengaju yang sedang login.
 $daftarPengajuan = [];
 
 if ($koneksi) {
@@ -62,7 +62,8 @@ if ($koneksi) {
             <a href="kalender-jadwal.php" class="btn primary" style="text-decoration:none; display:inline-block; padding:10px 18px;">+ Ajukan Request Baru</a>
         </div>
 
-        <?php if (!empty($daftarPengajuan)): ?>
+        <?php if (!empty($daftarPengajuan)): ?> 
+        
             <!-- UI-02-01 | [CLS - IM-001] HalamanStatusPengajuan (daftar tersedia) -->
             <div class="card tabel" id="daftarPengajuanCard">
                 <table>
